@@ -81,11 +81,9 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
             fileset["UL2018"] = [prependstr + "/store/data/Run2018A/SingleMuon/NANOAOD/UL2018_MiniAODv2_NanoAODv9_GT36-v1/2820000/FF8A3CD2-3F51-7A43-B56C-7F7B7B3158E3.root"]
 
                 
-<<<<<<< HEAD
+
     if client == None:# or testing == True:         
-=======
-    if client == None or testing == True:         
->>>>>>> 403dc62c17f54d1762181733b350fdf8dbf3ae56
+
         run = processor.Runner(
             executor = processor.FuturesExecutor(compression=None, workers=nworkers),
             schema=NanoAODSchema,

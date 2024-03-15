@@ -23,7 +23,7 @@ from coffea.jetmet_tools import JECStack, CorrectedJetsFactory
 #from jmeCorrections import ApplyJetCorrections, corrected_polar_met
 from collections import defaultdict
 import correctionlib
-<<<<<<< HEAD
+
 import os
 
 def GetJetCorrections(FatJets, events, era, IOV, isData=False):
@@ -177,9 +177,7 @@ def GetJetCorrections(FatJets, events, era, IOV, isData=False):
     corrected_jets = jet_factory.build(FatJets, lazy_cache=events_cache)
     print("Built corrections object")
     return corrected_jets
-=======
 
->>>>>>> 403dc62c17f54d1762181733b350fdf8dbf3ae56
 
 def CorrectJetsRun2(IOV, Jets, JetsName="AK4PFchs", leptons_inJet=None):
     jer_tag=None
