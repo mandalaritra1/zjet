@@ -1,16 +1,15 @@
 # QJetMassUproot
 
-Uproot-based QJet Mass analysis
+Uproot-based QJet Mass analysis. 
+
 
 
 ## Instructions
 
-To run, there are currently several files that work on NanoAODv9: 
-
-* [Library that defines class to make plots of a dataset](https://github.com/rappoccio/QJetMassUproot/blob/master/response_maker_nanov9_lib.py)
-* [Driver script to run over datasets](https://github.com/rappoccio/QJetMassUproot/blob/master/response_maker_nanov9.py)
-* [Optional notebook to call running script and draw plots](https://github.com/rappoccio/QJetMassUproot/blob/master/response_maker_nanov9.ipynb)
+This is currently optimized to run in LPC. Follow instrunctions from https://github.com/CoffeaTeam/lpcjobqueue?tab=readme-ov-file to setup environment. 
+To run, you should use the driver file - ` response_maker_nanov9.ipynb`. 
+For running in coffea.casa, set `prependstr = "root://xcache/" `
 
 
-You can either execute the notebook, or run the driver script on the command line. 
->>>>>>> 403dc62c17f54d1762181733b350fdf8dbf3ae56
+
+
