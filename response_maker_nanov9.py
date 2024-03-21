@@ -12,6 +12,11 @@ from coffea.nanoevents import NanoEventsFactory, NanoAODSchema, BaseSchema
 from collections import defaultdict
 import glob
 import pickle
+import dask
+
+
+import hist.dask as hda
+import dask_awkward as dak
 
 from response_maker_nanov9_lib import *
 
@@ -76,13 +81,13 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
                     fileset[dataset] = data_files
     else: 
         if do_gen:
-            fileset["UL2018"] = [prependstr + "/store/mc/RunIISummer20UL18NanoAODv9/DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/120000/26793660-5D04-C24B-813E-3C1744C84D2D.root"]
+            fileset["UL2018"] = [prependstr + "/store/mc/RunIISummer20UL18NanoAODv9/DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/120000/26793660-5D04-C24B-813E-3C1744C84D2D.root" ]
         else: 
             fileset["UL2018"] = [prependstr + "/store/data/Run2018A/SingleMuon/NANOAOD/UL2018_MiniAODv2_NanoAODv9_GT36-v1/2820000/FF8A3CD2-3F51-7A43-B56C-7F7B7B3158E3.root"]
 
                 
 
-    if client == None:# or testing == True:         
+    if client == None or testing == True:         
 
         run = processor.Runner(
             executor = processor.FuturesExecutor(compression=None, workers=nworkers),
@@ -99,9 +104,25 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
             maxchunks=maxchunks,
             skipbadfiles=True
         )
-        
+
+    
     print("Running...")
-        
+    # print(fileset)
+    # if client == None or testing == True:
+    #     dataset_runnable, dataset_updated = preprocess(
+    #         fileset,
+    #         align_clusters=False,
+    #         step_size=100_000,
+    #         files_per_batch=1,
+    #         skip_bad_files=True,
+    #         save_form=False,
+    #     )
+    #     to_compute = apply_to_fileset(
+    #             QJetMassProcessor(do_gen=do_gen, skimfilename=skimfilename),
+    #             max_chunks(dataset_runnable, 1000),
+    #             schemaclass=NanoAODSchema,
+    #         )
+    #     (output, ) = dask.compute(to_compute) 
         
     output = run(
         fileset,

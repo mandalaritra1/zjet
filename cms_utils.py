@@ -14,7 +14,7 @@ import glob as glob
 import re
 import itertools
 import vector as vec
-from coffea.nanoevents.methods import vector
+#from coffea.nanoevents.methods import vector
 from coffea.nanoevents import NanoAODSchema
 from coffea.lumi_tools import LumiMask
 # for applying JECs
@@ -433,7 +433,19 @@ def GetEleSF(IOV, wp, eta, pt, var = ""):
         "2017"    : "2017",
         "2018"    : "2018",
     }
-    num = ak.num(pt)
+    #num = ak.num(pt)   ## this part has been modified - Please uncomment to use in other projects
+    
+    none_mask = ak.is_none(pt)
+    pt = ak.where(none_mask, 1, pt)
+    eta = ak.where(none_mask, 1, eta)
+    
+    ##### modifying the code to run with ak.firsts -Aritra
+    num = ak.ones_like(np.zeros(len(pt), dtype = "int64"))
+    
+    pt = ak.unflatten(pt, num)
+    eta = ak.unflatten(pt, num)
+    
+    
     evaluator = correctionlib.CorrectionSet.from_file(fname)
     
     ## if the eta and pt satisfy the requirements derive the eff SFs, otherwise set it to 1.
@@ -461,17 +473,31 @@ def GetMuonSF(IOV, corrset, abseta, pt, var="sf"):
         "2017"    : "2017_UL",
         "2018"    : "2018_UL",
     } 
-    num = ak.num(pt)
+
+    #num = ak.num(pt)   ## this part has been modified - Please uncomment to use in other projects
+    
+    none_mask = ak.is_none(pt)
+    pt = ak.where(none_mask, 22, pt)
+    abseta = ak.where(none_mask, 2.3, abseta)
+    
+    ##### modifying the code to run with ak.firsts -Aritra
+    num = ak.ones_like(np.zeros(len(pt), dtype = "int64"))
+    
+    pt = ak.unflatten(pt, num)
+    
+    #print("pt inside muonsf function ", pt)
+    #print("len of pt inside muonsf function ", len(pt))
     evaluator = correctionlib.CorrectionSet.from_file(fname)
     ## if the abseta and pt satisfy the requirements derive the eff SFs, otherwise set it to 1.
     
-    mask = (pt > 15) & (abseta < 2.4)
+    mask = (pt > 15) & (abseta < 2.4) 
     pt = ak.where(mask, pt, 22)
     abseta = ak.where(mask, abseta, 2.3)
     
     sf = evaluator[hname].evaluate(year[IOV], np.array(ak.flatten(abseta)),
                                    np.array(ak.flatten(pt)), var)
     sf = ak.where(np.array(ak.flatten(~mask)), 1, sf)
+    #print("len of sf inside funciton ", len(sf))
     return ak.unflatten(sf, ak.num(pt))
 
 def GetMuonTrigEff(IOV, abseta, pt, var="nominal"):
