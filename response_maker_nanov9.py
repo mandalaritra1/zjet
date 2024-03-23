@@ -15,8 +15,6 @@ import pickle
 import dask
 
 
-import hist.dask as hda
-import dask_awkward as dak
 
 from response_maker_nanov9_lib import *
 
@@ -41,7 +39,7 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
     
     if not testing: 
         nworkers = 1
-        chunksize = 1000000
+        chunksize = 100000
         maxchunks = None
     else:
         nworkers = 1
@@ -87,7 +85,7 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
 
                 
 
-    if client == None or testing == True:         
+    if client == None:         
 
         run = processor.Runner(
             executor = processor.FuturesExecutor(compression=None, workers=nworkers),
@@ -98,7 +96,7 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
         )
     else: 
         run = processor.Runner(
-            executor = processor.DaskExecutor(client=client),
+            executor = processor.DaskExecutor(client=client, retries=12, status=True),
             schema=NanoAODSchema,
             chunksize=chunksize,
             maxchunks=maxchunks,
