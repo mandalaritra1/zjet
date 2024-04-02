@@ -175,7 +175,7 @@ def GetJetCorrections(FatJets, events, era, IOV, isData=False):
 
     jet_factory = CorrectedJetsFactory(name_map, jec_stack)
     corrected_jets = jet_factory.build(FatJets, lazy_cache=events_cache)
-    print("Built corrections object")
+    #print("Built corrections object")
     return corrected_jets
 
 
@@ -457,7 +457,6 @@ def GetEleSF(IOV, wp, eta, pt, var = ""):
                                                  np.array(ak.flatten(pt)))
     sf = ak.where(np.array(ak.flatten(~mask)), 1, sf)
     return ak.unflatten(sf, ak.num(pt))
-
 def GetMuonSF(IOV, corrset, abseta, pt, var="sf"):
     ## Reference: https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonReferenceEffsRun2
     ## json files from: https://gitlab.cern.ch/cms-nanoAOD/jsonpog-integration/-/tree/master/POG/MUO

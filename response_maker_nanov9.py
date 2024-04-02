@@ -16,11 +16,11 @@ import dask
 
 
 
-from response_maker_nanov9_lib import *
+from response_maker_nanov9_mc_lib import *
 
 
 
-def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = "root://xcache/", skimfilename=None): 
+def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = "root://xcache/", skimfilename=None, eras_mc = None): 
 
     filedir = "samples/"
 
@@ -30,16 +30,12 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
         'UL17NanoAOD', 
         'UL18NanoAOD'
            ]
-    eras_mc = [
-        'UL16NanoAODv9', 
-        'UL17NanoAODv9', 
-        'UL18NanoAODv9'
-    ]
+    eras_mc = eras_mc
     
     
     if not testing: 
         nworkers = 1
-        chunksize = 100000
+        chunksize = 4000
         maxchunks = None
     else:
         nworkers = 1
@@ -131,7 +127,7 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
     print("Done running")
     
     if do_gen:
-        fname_out = 'qjetmass_zjets_gen.pkl'
+        fname_out = 'qjetmass_zjets_gen'+eras_mc[0]+'.pkl'
     else:
         fname_out = 'qjetmass_zjets_reco.pkl'
     with open(fname_out, "wb") as f:
