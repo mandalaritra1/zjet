@@ -16,11 +16,11 @@ import dask
 
 
 
-from response_maker_nanov9_mc_lib import *
+from response_maker_nanov9_lib import *
 
 
 
-def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = "root://xcache/", skimfilename=None, eras_mc = None): 
+def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = "root://xcache/", skimfilename=None, eras_mc = None, jet_syst = "nominal", dask = False): 
 
     filedir = "samples/"
 
@@ -35,9 +35,13 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
     
     if not testing: 
         nworkers = 1
-        chunksize = 4000
+        chunksize = 200000
+        maxchunks = None
+    elif dask and (client != None):
+        chunksize = 100000
         maxchunks = None
     else:
+        client = None
         nworkers = 1
         if do_gen: 
             chunksize = 1000
@@ -75,7 +79,7 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
                     fileset[dataset] = data_files
     else: 
         if do_gen:
-            fileset["UL2018"] = [prependstr + "/store/mc/RunIISummer20UL18NanoAODv9/DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/120000/26793660-5D04-C24B-813E-3C1744C84D2D.root" ]
+            fileset["UL2017"] = [prependstr + "/store/mc/RunIISummer20UL17NanoAODv9/DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8/NANOAODSIM/106X_mc2017_realistic_v9-v1/270000/5487A845-6A13-D44C-8708-8F5F740D93AB.root" ]
         else: 
             fileset["UL2018"] = [prependstr + "/store/data/Run2018A/SingleMuon/NANOAOD/UL2018_MiniAODv2_NanoAODv9_GT36-v1/2820000/FF8A3CD2-3F51-7A43-B56C-7F7B7B3158E3.root"]
 
@@ -121,13 +125,16 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
     output = run(
         fileset,
         "Events",
-        processor_instance=QJetMassProcessor(do_gen=do_gen, skimfilename=skimfilename),
+        processor_instance=QJetMassProcessor(do_gen=do_gen, skimfilename=skimfilename, jet_syst = jet_syst),
     )
 
     print("Done running")
     
     if do_gen:
-        fname_out = 'qjetmass_zjets_gen'+eras_mc[0]+'.pkl'
+        if testing == False:
+            fname_out = 'qjetmass_zjets_gen_'+eras_mc[0]+'_' +"all_syst" +'.pkl'
+        else:
+            fname_out = 'test_qjetmass_zjets_gen_'+eras_mc[0]+'_' +"all_syst" +'.pkl'
     else:
         fname_out = 'qjetmass_zjets_reco.pkl'
     with open(fname_out, "wb") as f:

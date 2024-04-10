@@ -26,15 +26,17 @@ import correctionlib
 
 import os
 
+def GetJetCorrections(FatJets, events, era, IOV, isData=False):
+    #### I haven't had any issues where i need an "upload directory" like here
+    # uploadDir = 'srv/' for lpcjobqueue shell or TTbarAllHadUproot/ for coffea casa
+    # uploadDir = os.getcwd().replace('/','') + '/'
+    # if 'TTbarAllHadUproot' in uploadDir: 
+    #     uploadDir = 'TTbarAllHadUproot/'
+    # elif 'jovyan' in uploadDir:
+    #     uploadDir = 'TTbarAllHadUproot/'
+    # else:
+    #     uploadDir = 'srv/'
 
-
-def GetJetCorrections(FatJets, events, era, IOV, isData=False, uncertainties = None):
-    if uncertainties != None:
-        uncertainty_sources = uncertainties
-    else:
-        uncertainty_sources = ["AbsoluteMPFBias","AbsoluteScale","AbsoluteStat","FlavorQCD","Fragmentation","PileUpDataMC","PileUpPtBB","PileUpPtEC1","PileUpPtEC2","PileUpPtHF",
-"PileUpPtRef","RelativeFSR","RelativeJEREC1","RelativeJEREC2","RelativeJERHF","RelativePtBB","RelativePtEC1","RelativePtEC2","RelativePtHF","RelativeBal","RelativeSample",
-"RelativeStatEC","RelativeStatFSR","RelativeStatHF","SinglePionECAL","SinglePionHCAL","TimePtEta"]
     # original code https://gitlab.cern.ch/gagarwal/ttbardileptonic/-/blob/master/jmeCorrections.py
     jer_tag=None
     if (IOV=='2018'):
@@ -94,12 +96,13 @@ def GetJetCorrections(FatJets, events, era, IOV, isData=False, uncertainties = N
         ])
         #### Do AK8PUPPI jer files exist??
         if jer_tag:
+            #print("JER tag: ", jer_tag)
             #print("File "+'correctionFiles/JER/{0}/{0}_PtResolution_AK8PFPuppi.jr.txt'.format(jer_tag)+" exists: ", os.path.exists('correctionFiles/JER/{0}/{0}_PtResolution_AK8PFPuppi.jr.txt'.format(jer_tag)))
             #print("File "+'correctionFiles/JER/{0}/{0}_SF_AK8PFPuppi.jersf.txt'.format(jer_tag)+" exists: ", os.path.exists('correctionFiles/JER/{0}/{0}_SF_AK8PFPuppi.jersf.txt'.format(jer_tag)))
             ext.add_weight_sets([
             '* * '+'correctionFiles/JER/{0}/{0}_PtResolution_AK8PFPuppi.jr.txt'.format(jer_tag),
             '* * '+'correctionFiles/JER/{0}/{0}_SF_AK8PFPuppi.jersf.txt'.format(jer_tag)])
-
+            #print("JER SF added")
     else:       
         #For data, make sure we don't duplicat
         tags_done = []
@@ -114,15 +117,18 @@ def GetJetCorrections(FatJets, events, era, IOV, isData=False, uncertainties = N
                 tags_done += [tag]
     ext.finalize()
 
+    #print("Making evaluator")
 
     evaluator = ext.make_evaluator()
+
+
 
     if (not isData):
         jec_names = [
             '{0}_L1FastJet_AK8PFPuppi'.format(jec_tag),
             '{0}_L2Relative_AK8PFPuppi'.format(jec_tag),
-            '{0}_L3Absolute_AK8PFPuppi'.format(jec_tag)]
-        jec_names.extend(['{0}_UncertaintySources_AK8PFPuppi_{1}'.format(jec_tag, unc_src) for unc_src in uncertainty_sources])
+            '{0}_L3Absolute_AK8PFPuppi'.format(jec_tag),
+            '{0}_Uncertainty_AK8PFPuppi'.format(jec_tag)]
 
         if jer_tag: 
             jec_names.extend(['{0}_PtResolution_AK8PFPuppi'.format(jer_tag),
@@ -145,7 +151,7 @@ def GetJetCorrections(FatJets, events, era, IOV, isData=False, uncertainties = N
         jec_inputs = {name: evaluator[name] for name in jec_names[era]}
 
 
-    # print("jec_input", jec_inputs)
+
     jec_stack = JECStack(jec_inputs)
 
 
@@ -169,8 +175,7 @@ def GetJetCorrections(FatJets, events, era, IOV, isData=False, uncertainties = N
 
     jet_factory = CorrectedJetsFactory(name_map, jec_stack)
     corrected_jets = jet_factory.build(FatJets, lazy_cache=events_cache)
-    # print("Available uncertainties: ", jet_factory.uncertainties())
-    # print("Corrected jets object: ", corrected_jets.fields)
+    #print("Built corrections object")
     return corrected_jets
 
 
@@ -428,7 +433,19 @@ def GetEleSF(IOV, wp, eta, pt, var = ""):
         "2017"    : "2017",
         "2018"    : "2018",
     }
-    num = ak.num(pt)
+    #num = ak.num(pt)   ## this part has been modified - Please uncomment to use in other projects
+    
+    none_mask = ak.is_none(pt)
+    pt = ak.where(none_mask, 1, pt)
+    eta = ak.where(none_mask, 1, eta)
+    
+    ##### modifying the code to run with ak.firsts -Aritra
+    num = ak.ones_like(np.zeros(len(pt), dtype = "int64"))
+    
+    pt = ak.unflatten(pt, num)
+    eta = ak.unflatten(pt, num)
+    
+    
     evaluator = correctionlib.CorrectionSet.from_file(fname)
     
     ## if the eta and pt satisfy the requirements derive the eff SFs, otherwise set it to 1.
@@ -440,87 +457,92 @@ def GetEleSF(IOV, wp, eta, pt, var = ""):
                                                  np.array(ak.flatten(pt)))
     sf = ak.where(np.array(ak.flatten(~mask)), 1, sf)
     return ak.unflatten(sf, ak.num(pt))
-
 def GetMuonSF(IOV, corrset, abseta, pt, var="sf"):
-    ## For reco and trigger SF for high pT muons
-    ## Reference: https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonUL2016
-    ##            https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonUL2017
-    ##            https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonUL2018
-    ## Using the JSONs created by MUO POG
-    ## corrset = "RECO", "HLT", "IDISO"
+    ## Reference: https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonReferenceEffsRun2
+    ## json files from: https://gitlab.cern.ch/cms-nanoAOD/jsonpog-integration/-/tree/master/POG/MUO
     ## var = "sf", "systup", "systdown"
-    
-    tag = IOV
-    if 'APV' in IOV:
-        tag = '2016_preVFP'
-    fname = "data/muonSF/UL"+IOV+"/ScaleFactors_Muon_highPt_"+corrset+"_"+tag+"_schemaV2.json"
-    
-    num = ak.num(pt)
-    evaluator = correctionlib.CorrectionSet.from_file(fname)
-    
-    ## the correction for TuneP muons are avaiable for p > 50GeV and eta < 2.4,
-    ## so for those cases I'm applying SFs form the next closest bin.
-    pt = ak.where(pt > 50, pt, 50.1)
-    abseta = ak.where(abseta < 2.4, abseta, 2.39)
-    
-    if corrset == "RECO":
-        hname = "NUM_GlobalMuons_DEN_TrackerMuonProbes" # for RECO (p, eta)
-        #we need to modify the pT into |p|
-        pt = np.cosh(abseta)*pt
-        pt = ak.where(pt < 3500, pt, 3499)
-        
-    if corrset == "HLT":
-        hname = "NUM_HLT_DEN_HighPtTightRelIsoProbes" # for HLT (pt, eta)
-        pt = ak.where(pt < 1000, pt, 999.9)
-        
-    if corrset == "IDISO":
-        hname = "NUM_HighPtID_DEN_GlobalMuonProbes" # for IDISO (pt, eta)
-        pt = ak.where(pt < 1000, pt, 999.9)
-    
-    sf = evaluator[hname].evaluate(np.array(ak.flatten(abseta)),
-                                   np.array(ak.flatten(pt)),
-                                   'nominal')
-    syst = evaluator[hname].evaluate(np.array(ak.flatten(abseta)),
-                                   np.array(ak.flatten(pt)),
-                                   'syst')
-    if "up" in var:
-        sf = sf + syst
-    elif "down" in var:
-        sf = sf - syst
+    fname = "jsonpog-integration/POG/MUO/" + corrlib_namemap[IOV] + "/muon_Z.json.gz"
+    if "reco" in corrset:
+        hname = "NUM_TrackerMuons_DEN_genTracks"
+    else:
+        hname = "NUM_TightID_DEN_genTracks"
+    year = {
+        "2016APV" : "2016preVFP_UL",
+        "2016"    : "2016postVFP_UL",
+        "2017"    : "2017_UL",
+        "2018"    : "2018_UL",
+    } 
 
+    #num = ak.num(pt)   ## this part has been modified - Please uncomment to use in other projects
+    
+    none_mask = ak.is_none(pt)
+    pt = ak.where(none_mask, 22, pt)
+    abseta = ak.where(none_mask, 2.3, abseta)
+    
+    ##### modifying the code to run with ak.firsts -Aritra
+    num = ak.ones_like(np.zeros(len(pt), dtype = "int64"))
+    
+    pt = ak.unflatten(pt, num)
+    
+    #print("pt inside muonsf function ", pt)
+    #print("len of pt inside muonsf function ", len(pt))
+    evaluator = correctionlib.CorrectionSet.from_file(fname)
+    ## if the abseta and pt satisfy the requirements derive the eff SFs, otherwise set it to 1.
+    
+    mask = (pt > 15) & (abseta < 2.4) 
+    pt = ak.where(mask, pt, 22)
+    abseta = ak.where(mask, abseta, 2.3)
+    
+    sf = evaluator[hname].evaluate(year[IOV], np.array(ak.flatten(abseta)),
+                                   np.array(ak.flatten(pt)), var)
+    sf = ak.where(np.array(ak.flatten(~mask)), 1, sf)
+    #print("len of sf inside funciton ", len(sf))
     return ak.unflatten(sf, ak.num(pt))
 
-
-
-def GetEleTrigEff(IOV, lep0pT, var = ""):
-    ## Most recent presentation avaible at: https://indico.cern.ch/event/1290491/#5-tt-resonances-2l-update
-    eleSF = {
-        #"2016APV":{"sf": 1.035, "sfup": 1.0971, "sfdown": 0.9729},
-        "2016APV":{"sf": 1.034, "sfup": 1.0702934, "sfdown": 0.9977066}, # 3.51%
-        #"2016"   :{"sf": 1.024, "sfup": 1.3424,  "sfdown": 1.01376},
-        "2016"   :{"sf": 1.026, "sfup": 1.0391328,  "sfdown": 1.0128672}, #1.28%
-        #"2017"   :{"sf": 0.983, "sfup": 1.00266, "sfdown": 0.96334},
-        "2017"   :{"sf": 0.982, "sfup": 0.989856, "sfdown": 0.974144}, #0.80%
-        # "2018"   :{"sf": 0.992, "sfup": 1.01184, "sfdown": 0.97216},
-        "2018"   :{"sf": 0.994, "sfup": 1.0105998, "sfdown": 0.9774002}} #1.67%
-
-    out_L = np.where(lep0pT<200, eleSF[IOV]["sf"+var], 1.0)
-    out_M = np.where((lep0pT>=200)&(lep0pT<400), eleSF[IOV]["sf"+var], 1.0)
-    out_H = np.where(lep0pT>=400, eleSF[IOV]["sf"+var], 1.0)
-    return out_L, out_M, out_H
+def GetMuonTrigEff(IOV, abseta, pt, var="nominal"):
+    ## Reference: https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonReferenceEffsRun2
+    ## json files from: https://gitlab.cern.ch/cms-nanoAOD/jsonpog-integration/-/tree/master/POG/MUO
+    # var = "nominal", "up", "down"
+    num = ak.num(pt)
+    
+    year = "2016_UL_HIPM" if IOV == '2016APV' else IOV+"_UL"
+    fname = "data/muonTrigSF/Efficiencies_muon_generalTracks_Z_Run" + year + "_SingleMuonTriggers_schemaV2.json.gz"
+    fname = "jsonpog-integration/POG/MUO/" + corrlib_namemap[IOV] + "/muon_Z.json.gz"
+    hname = {
+        "2016APV": "NUM_Mu50_or_TkMu50_DEN_CutBasedIdGlobalHighPt_and_TkIsoLoose",
+        "2016"   : "NUM_Mu50_or_TkMu50_DEN_CutBasedIdGlobalHighPt_and_TkIsoLoose",
+        "2017"   : "NUM_Mu50_or_OldMu100_or_TkMu100_DEN_CutBasedIdGlobalHighPt_and_TkIsoLoose",
+        "2018"   : "NUM_Mu50_or_OldMu100_or_TkMu100_DEN_CutBasedIdGlobalHighPt_and_TkIsoLoose"
+    }
+    evaluator = correctionlib.CorrectionSet.from_file(fname)
+    
+    ## if the abseta and pt satisfy the requirements derive the eff SFs, otherwise set it to 1.
+    
+    mask = np.array(ak.flatten((pt < 200) & (pt > 52) & (abseta < 2.4)))
+    pt = np.array(ak.where(mask, np.array(ak.flatten(pt)), 53))
+    abseta = np.array(ak.where(mask, np.array(ak.flatten(abseta)), 2.3))
+    
+    sf = evaluator[hname[IOV]].evaluate(abseta, pt, "nominal")
+    syst = evaluator[hname[IOV]].evaluate(abseta, pt, "syst")
+    
+    if var == "up":
+        sf += syst
+    elif var == "down":
+        sf -= syst
+        
+    sf = ak.where(~mask, 1, sf)
+    
+    return ak.unflatten(sf, num)
 
 def GetPDFweights(df, var="nominal"):
     ## determines the pdf up and down variations
-    pdf = ak.ones_like(df.Pileup.nTrueInt)
+    pdf = ak.ones_like(df.event)
     if ("LHEPdfWeight" in ak.fields(df)):
         pdfUnc = ak.std(df.LHEPdfWeight,axis=1)/ak.mean(df.LHEPdfWeight,axis=1)
-    pdf =  ak.values_astype(pdf, float)
-    pdfUnc = ak.values_astype(pdfUnc, float)
-
     if var == "up":
-        pdf = pdf + pdfUnc
+        pdf += pdfUnc
     elif var == "down":
-        pdf = pdf - pdfUnc
+        pdf -= pdfUnc
     return pdf
 
 def GetQ2weights(df, var="nominal"):
