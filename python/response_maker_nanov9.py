@@ -38,7 +38,7 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
         chunksize = 200000
         maxchunks = None
     elif dask and (client != None):
-        chunksize = 100000
+        chunksize = 10000
         maxchunks = None
     else:
         client = None
@@ -79,7 +79,9 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
                     fileset[dataset] = data_files
     else: 
         if do_gen:
-            fileset["UL2017"] = [prependstr + "/store/mc/RunIISummer20UL17NanoAODv9/DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8/NANOAODSIM/106X_mc2017_realistic_v9-v1/270000/5487A845-6A13-D44C-8708-8F5F740D93AB.root" ]
+            filename = filedir+"subset2016mc.txt"
+            with open(filename) as f:
+                fileset["UL2016"] = [prependstr + i.rstrip() for i in f.readlines() if i[0] != "#" ]
         else: 
             fileset["UL2018"] = [prependstr + "/store/data/Run2018A/SingleMuon/NANOAOD/UL2018_MiniAODv2_NanoAODv9_GT36-v1/2820000/FF8A3CD2-3F51-7A43-B56C-7F7B7B3158E3.root"]
 
