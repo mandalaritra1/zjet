@@ -91,8 +91,8 @@ class QJetMassProcessor(processor.ProcessorABC):
 
         
         ### Plots to be unfolded
-        h_ptjet_mjet_u_reco = hist.Hist(dataset_axis, ptreco_axis, mreco_axis, storage="weight", label="Counts")
-        h_ptjet_mjet_g_reco = hist.Hist(dataset_axis, ptreco_axis, mreco_axis, storage="weight", label="Counts")
+        h_ptjet_mjet_u_reco = hist.Hist(dataset_axis, ptreco_axis, mreco_axis, syst_axis, storage="weight", label="Counts")
+        h_ptjet_mjet_g_reco = hist.Hist(dataset_axis, ptreco_axis, mreco_axis, syst_axis, storage="weight", label="Counts")
         ### Plots for comparison
         h_ptjet_mjet_u_gen = hist.Hist(dataset_axis, ptgen_axis, mgen_axis, storage="weight", label="Counts")        
         h_ptjet_mjet_g_gen = hist.Hist(dataset_axis, ptgen_axis, mgen_axis, storage="weight", label="Counts")
@@ -148,7 +148,7 @@ class QJetMassProcessor(processor.ProcessorABC):
         }
         
         #self.systematics = ['nominal', 'puUp', 'puDown', "elerecoUp", "elerecoDown" ] 
-        self.systematics = ['nominal', 'puUp', 'puDown' , 'elerecoUp', 'elerecoDown', 'murecoUp', 'murecoDown', 'muidUp', 'muidDown', 'mutrigUp', 'mutrigDown', 'pdfUp', 'pdfDown', 'q2Up', 'q2Down', 'prefiringUp', 'prefiringDown'] 
+        self.systematics = ['nominal', 'puUp', 'puDown' , 'elerecoUp', 'elerecoDown', 'eleidUp', 'eleidDown', 'murecoUp', 'murecoDown', 'muidUp', 'muidDown', 'mutrigUp', 'mutrigDown', 'pdfUp', 'pdfDown', 'q2Up', 'q2Down', 'prefiringUp', 'prefiringDown'] 
         self.jet_systematics = ["nominal", "JERUp", "JERDown"]
         
         
@@ -212,8 +212,6 @@ class QJetMassProcessor(processor.ProcessorABC):
         if self.do_gen:
 
             
-            
-  
             #pdf uncertainty systematics len
             events0["pdf_N"] = GetPDFweights(events0)
             events0["pdf_U"] = GetPDFweights(events0, var="up")
@@ -281,9 +279,19 @@ class QJetMassProcessor(processor.ProcessorABC):
             events0["mutrig_D"] = GetMuonSF(IOV, "HLT", np.abs(events0.Muon.eta), events0.Muon.pt, "systup")
 
 
-
-
-            
+        
+        
+        else:
+            systematic_list = ['pdf_N', 'pdf_U', 'pdf_D', 'q2_N', 'q2_U', 'q2_D', "pu_nominal", "pu_U", "pu_D", "prefiring_N", "prefiring_U", "prefiring_D", 
+                          "elereco_N", "elereco_U", "elereco_D", "eleid_N", "eleid_U", "eleid_D" , "mureco_N", "mureco_U", "mureco_D",  "muid_N", "muid_U", "muid_D",
+                          "mutrig_N", "mutrig_U", "mutrig_D"]
+            for systematic in systematic_list:
+                if "mu" in systematic:
+                    events0[systematic] = ak.ones_like(events0.Muon.pt)
+                elif "ele" in systematic:
+                    events0[systematic] = ak.ones_like(events0.Electron.pt)
+                else:
+                    events0[systematic]= ak.ones_like(events0.event, dtype=float)
 
         #####################################
         ### Initialize selection
@@ -316,6 +324,8 @@ class QJetMassProcessor(processor.ProcessorABC):
         ## adding jet corrections ##
         #############################
         corr_jets = GetJetCorrections(events0.FatJet, events0, era, IOV, isData = not self.do_gen)
+
+        
         #print("Jet corrections working")
         # print("length of recojets JES up: " , len(corr_jets.JES_jes.up))
         # print("length of recojets JES down: " , len(corr_jets.JES_jes.down))
@@ -332,6 +342,8 @@ class QJetMassProcessor(processor.ProcessorABC):
                 
         
         #print("length of original event: " , len(events_original))
+
+  
         for jet_syst in self.jet_systematics:
             #print("length of event in loop: " , len(events))
             # print("JES" in jet_syst)
@@ -340,7 +352,8 @@ class QJetMassProcessor(processor.ProcessorABC):
             # print("f")
             if jet_syst == "nominal":
                 events = ak.with_field(events0, corr_jets, "FatJet")
-
+                
+            
             elif jet_syst == "JERUp":
                 events = ak.with_field(events0, corr_jets.JER.up, "FatJet")
 
@@ -361,7 +374,7 @@ class QJetMassProcessor(processor.ProcessorABC):
             #####################################
             ### Remove events with very large gen weights (>2 sigma)
             #####################################
-    
+            
             if self.do_gen:
                 if dataset not in self.means_stddevs : 
                     average = np.average( events["LHEWeight"].originalXWGTUP )
@@ -374,7 +387,7 @@ class QJetMassProcessor(processor.ProcessorABC):
                 self.hists["cutflow"][dataset]["weights cut"] += len(events)
 
                 sel = PackedSelection() ## initialise selection for MC
-                weights = events["LHEWeight"].originalXWGTUP
+   
                 #####################################
                 ### Initialize event weight to gen weight
                 #####################################
@@ -387,9 +400,10 @@ class QJetMassProcessor(processor.ProcessorABC):
             else:
                 weights = np.full( len( events ), 1.0 )
 
-            # NPV selection
-            #print(events.PV.npvsGood>0)
-    
+
+
+            
+
             
             #npv = np.array(events.PV.npvsGood >0)
             sel.add("npv", events.PV.npvsGood > 0)
@@ -423,11 +437,11 @@ class QJetMassProcessor(processor.ProcessorABC):
                 misses = ~matches
     
                 sel.add("matches", matches)
+                sel.add("misses", misses)
                 #print(len(ak.flatten(events[misses].GenJetAK8.pt)))
                 #print(len(ak.flatten(ak.broadcast_arrays( weights[misses], events[misses].GenJetAK8.pt)[0] )))
                 
-                self.hists["misses"].fill(dataset = dataset, ptgen= ak.flatten(events[misses].GenJetAK8.pt),
-                                                  mgen = ak.flatten(events[misses].GenJetAK8.mass),  weight = ak.flatten(ak.broadcast_arrays( weights[misses], events[misses].GenJetAK8.pt)[0] ) )
+                
     
                 #####################################
                 ### Make gen-level Z
@@ -527,12 +541,11 @@ class QJetMassProcessor(processor.ProcessorABC):
                 self.hists["dr_gen_subjet"].fill(dataset=dataset,
                                                  dr=groomed_gen_jet[allsel_gen].delta_r(gen_jet[allsel_gen]),
                                                  weight=weights[allsel_gen])
-                lep0 = events[allsel_gen].GenDressedLepton[:,0]
-                lep1 = events[allsel_gen].GenDressedLepton[:,1]
-                
-                #print("Zgen mass: ", z_gen[allsel_gen].mass)
-                #print("lep0 mass ", lep0.mass)
-                #print("lep1 mass ", lep1.mass)
+
+                misses = sel.all("npv", "kinsel_gen", "toposel_gen" , "misses")
+                self.hists["misses"].fill(dataset = dataset, ptgen= ak.flatten(events[misses].GenJetAK8.pt),
+                                                  mgen = ak.flatten(events[misses].GenJetAK8.mass),  weight = ak.flatten(ak.broadcast_arrays( weights[misses], events[misses].GenJetAK8.pt)[0] ) )
+                del z_jet_dr_gen2, z_pt_asym_sel_gen2, z_pt_asym_gen2, z_pt_frac_gen2, z_jet_dphi_sel_gen2
             #####################################
             ### Make reco-level Z
             #####################################
@@ -542,7 +555,8 @@ class QJetMassProcessor(processor.ProcessorABC):
             sel.add("z_ptcut_reco", z_ptcut_reco)
             sel.add("z_mcut_reco", z_mcut_reco)
     
-    
+
+            
             #######################
             
             
@@ -631,13 +645,15 @@ class QJetMassProcessor(processor.ProcessorABC):
             #####################################
             ### Make final selection plots here
             #####################################
-            
+            del z_jet_dr_reco3, z_pt_asym_sel_reco3, z_pt_asym_reco3, z_pt_frac_reco3, z_jet_dphi_sel_reco3, z_jet_dphi_reco3, z_pt_asym_reco, z_pt_asym_sel_reco
             # For convenience, finally reduce the size of the arrays at the end
             #weights = weights[allsel_reco]
             # z_reco = z_reco[allsel_reco]
             # reco_jet = reco_jet[allsel_reco]
             #self.hists["ptjet_mjet_u_reco"].fill( dataset=dataset, ptreco=reco_jet.pt, mreco=reco_jet.mass, weight=weights )
             #self.hists["ptjet_mjet_g_reco"].fill( dataset=dataset, ptreco=reco_jet.pt, mreco=reco_jet.msoftdrop, weight=weights )
+            jet_mass_groomed_sel = reco_jet.msoftdrop > 0 
+            sel.add("jet_mass_groomed_sel", jet_mass_groomed_sel)
             
             if self.do_gen:
                 fakes = ak.any(ak.is_none(events.FatJet.matched_gen, axis = -1), axis = -1)
@@ -648,109 +664,126 @@ class QJetMassProcessor(processor.ProcessorABC):
                 
                 matched_reco = sel.require(fakes = False)
                 sel.add("matched_reco", matched_reco)
-    
-                allsel_reco = sel.all("allsel_reco")
+            
+                allsel_reco = sel.all("allsel_reco", "matched_reco", "jet_mass_groomed_sel")
+            else:
+                allsel_reco = sel.all("allsel_reco", "jet_mass_groomed_sel")
 
-                events = events[allsel_reco]
-                weights = weights[allsel_reco]
-                z_reco = z_reco[allsel_reco]
-                reco_jet = reco_jet[allsel_reco]
-                #weights = weights[allsel_reco]
+            ### jet mass cuts
+            
+            
+
+            
+            ### Cut down arrays after final reco selection
+            
+            events = events[allsel_reco]
+            weights = weights[allsel_reco]
+            z_reco = z_reco[allsel_reco]
+            reco_jet = reco_jet[allsel_reco]
+            #weights = weights[allsel_reco]
+            if self.do_gen:
                 z_gen = z_gen[allsel_reco]
                 gen_jet = gen_jet[allsel_reco]
                 groomed_gen_jet = groomed_gen_jet[allsel_reco]
 
+            
+            
+
+            
+            ###########################################
+            ### Categorize events into ee and mm channel
+            ###########################################
+
+            ee_sel = sel.all("allsel_reco", "twoReco_ee")[allsel_reco]
+            mm_sel = sel.all("allsel_reco", "twoReco_mm")[allsel_reco]
+            
+            
+
+            cat_sel_list = {"ee":ee_sel, "mm": mm_sel}
+            ##############################################
+            # ee_sys_list = [syst for syst in coffea_weights.variations if "ele" in syst]
+            # mm_sys_list = [syst for syst in coffea_weights.variations if "mu" in syst]
+            
+            ee_sys_var_list = [syst for syst in self.systematics if "ele" in syst]
+            mm_sys_var_list = [syst for syst in self.systematics if "mu" in syst]
+
+            ###### Groomed Jets 
+            for cat in cat_sel_list.keys():
                 
-                
+                if jet_syst == "nominal":
+                    if cat == "ee":
 
-                
-                ###########################################
-                ### Categorize events into ee and mm channel
-                ###########################################
+                        events_ee = events[ee_sel]
+                        weights_ee = weights[ee_sel]
+                        if len(events_ee) > 0:
+                            coffea_weights = Weights(size = len(events_ee), storeIndividual = True)
 
-                ee_sel = sel.all("allsel_reco", "twoReco_ee")[allsel_reco]
-                mm_sel = sel.all("allsel_reco", "twoReco_mm")[allsel_reco]
-                
-                
+                            coffea_weights.add("init_weight", weights_ee)
 
-                cat_sel_list = {"ee":ee_sel, "mm": mm_sel}
-                ##############################################
-                # ee_sys_list = [syst for syst in coffea_weights.variations if "ele" in syst]
-                # mm_sys_list = [syst for syst in coffea_weights.variations if "mu" in syst]
+                            coffea_weights.add(name = "pu", weight = events_ee.pu_nominal, weightUp = events_ee.pu_U, weightDown = events_ee.pu_D)
+                            coffea_weights.add("q2", events_ee.q2_N, events_ee.q2_U, events_ee.q2_D)
+                            coffea_weights.add("pdf", events_ee.pdf_N, events_ee.pdf_U, events_ee.pdf_D)
+                            coffea_weights.add("prefiring", events_ee.prefiring_N, events_ee.prefiring_U, events_ee.prefiring_D)
+                            
+                            elereco_N = events_ee.elereco_N[:,0]*events_ee.elereco_N[:,1]
+                            elereco_U = events_ee.elereco_U[:,0]*events_ee.elereco_U[:,1]
+                            elereco_D = events_ee.elereco_D[:,0]*events_ee.elereco_D[:,1]
+                            
+                            coffea_weights.add(name = "elereco", weight = elereco_N, weightUp = elereco_U, weightDown = elereco_D)
+                            
+                            eleid_N = events_ee.eleid_N[:,0]*events_ee.eleid_N[:,1]
+                            eleid_U = events_ee.eleid_U[:,0]*events_ee.eleid_U[:,1]
+                            eleid_D = events_ee.eleid_D[:,0]*events_ee.eleid_D[:,1]
 
-                ee_sys_var_list = [syst for syst in self.systematics if "ele" in syst]
-                mm_sys_var_list = [syst for syst in self.systematics if "mu" in syst]
-                
-                for cat in cat_sel_list.keys():
-                    
-                    if jet_syst == "nominal":
-                        if cat == "ee":
+                            coffea_weights.add(name = "eleid", weight = eleid_N, weightUp = eleid_U, weightDown = eleid_D)
+                            
+                            coffea_weights.add(name = "mureco",
+                                               weight = ak.ones_like(events_ee.event, dtype = float), 
+                                               weightUp =  ak.ones_like(events_ee.event, dtype = float),
+                                               weightDown =  ak.ones_like(events_ee.event, dtype = float))
 
-                            events_ee = events[ee_sel]
-                            weights_ee = weights[ee_sel]
-                            if len(events_ee) > 0:
-                                coffea_weights = Weights(size = len(events_ee), storeIndividual = True)
-    
-                                coffea_weights.add("init_weight", weights_ee)
-    
-                                coffea_weights.add(name = "pu", weight = events_ee.pu_nominal, weightUp = events_ee.pu_U, weightDown = events_ee.pu_D)
-                                coffea_weights.add("q2", events_ee.q2_N, events_ee.q2_U, events_ee.q2_D)
-                                coffea_weights.add("pdf", events_ee.pdf_N, events_ee.pdf_U, events_ee.pdf_D)
-                                coffea_weights.add("prefiring", events_ee.prefiring_N, events_ee.prefiring_U, events_ee.prefiring_D)
-                                
-                                elereco_N = events_ee.elereco_N[:,0]*events_ee.elereco_N[:,1]
-                                elereco_U = events_ee.elereco_U[:,0]*events_ee.elereco_U[:,1]
-                                elereco_D = events_ee.elereco_D[:,0]*events_ee.elereco_D[:,1]
-                                
-                                coffea_weights.add(name = "elereco", weight = elereco_N, weightUp = elereco_U, weightDown = elereco_D)
-                                
-                                eleid_N = events_ee.eleid_N[:,0]*events_ee.eleid_N[:,1]
-                                eleid_U = events_ee.eleid_U[:,0]*events_ee.eleid_U[:,1]
-                                eleid_D = events_ee.eleid_D[:,0]*events_ee.eleid_D[:,1]
+                            coffea_weights.add(name = "muid",
+                                               weight = ak.ones_like(events_ee.event, dtype = float), 
+                                               weightUp =  ak.ones_like(events_ee.event, dtype = float),
+                                               weightDown =  ak.ones_like(events_ee.event, dtype = float))
 
-                                coffea_weights.add(name = "eleid", weight = eleid_N, weightUp = eleid_U, weightDown = eleid_D)
-                                
-                                coffea_weights.add(name = "mureco",
-                                                   weight = ak.ones_like(events_ee.Pileup.nTrueInt), 
-                                                   weightUp =  ak.ones_like(events_ee.Pileup.nTrueInt),
-                                                   weightDown =  ak.ones_like(events_ee.Pileup.nTrueInt))
+                            coffea_weights.add(name = "mutrig",
+                                               weight = ak.ones_like(events_ee.event, dtype = float), 
+                                               weightUp =  ak.ones_like(events_ee.event, dtype = float),
+                                               weightDown =  ak.ones_like(events_ee.event, dtype = float))
 
-                                coffea_weights.add(name = "muid",
-                                                   weight = ak.ones_like(events_ee.Pileup.nTrueInt), 
-                                                   weightUp =  ak.ones_like(events_ee.Pileup.nTrueInt),
-                                                   weightDown =  ak.ones_like(events_ee.Pileup.nTrueInt))
+                              
+                            del elereco_N, elereco_U, elereco_D, eleid_N, eleid_U, eleid_D
 
-                                coffea_weights.add(name = "mutrig",
-                                                   weight = ak.ones_like(events_ee.Pileup.nTrueInt), 
-                                                   weightUp =  ak.ones_like(events_ee.Pileup.nTrueInt),
-                                                   weightDown =  ak.ones_like(events_ee.Pileup.nTrueInt))
+                            
 
-      
-                                del elereco_N, elereco_U, elereco_D, eleid_N, eleid_U, eleid_D
-    
-                                
-    
-                                
-                                z_reco_ee = z_reco[ee_sel]
-                                reco_jet_ee = reco_jet[ee_sel]
-                                #weights = weights[allsel_reco]
+                            
+                            z_reco_ee = z_reco[ee_sel]
+                            reco_jet_ee = reco_jet[ee_sel]
+                            #weights = weights[allsel_reco]
+                            if self.do_gen:
                                 z_gen_ee = z_gen[ee_sel]
                                 gen_jet_ee = gen_jet[ee_sel]
                                 groomed_gen_jet_ee = groomed_gen_jet[ee_sel]
-    
-                    
-                                #systematics = [syst for syst in self.systematics if syst not in mm_sys_var_list]
-                                #print("for ee case ", systematics)
-    
-                                for syst in self.systematics:
-                                    if syst == "nominal":
-                                        w = coffea_weights.weight()
-                                        #w = weights
-                                    else:
-                                        #print(coffea_weights.variations)
-                                        w = coffea_weights.weight(modifier = syst)
-                                        #w = weights
-                                        
+
+                
+                            #systematics = [syst for syst in self.systematics if syst not in mm_sys_var_list]
+                            #print("for ee case ", systematics)
+                            print("msoftdrop")
+                            print(reco_jet_ee.msoftdrop)
+                            for syst in self.systematics:
+                                if syst == "nominal":
+                                    w = coffea_weights.weight()
+                                    #w = weights
+                                else:
+                                    #print(coffea_weights.variations)
+                                    w = coffea_weights.weight(modifier = syst)
+                                    #w = weights
+                                print(w)    
+                                self.hists["ptjet_mjet_u_reco"].fill(dataset=dataset, ptreco = reco_jet_ee.pt, mreco = reco_jet_ee.mass, systematic = syst, weight = w)
+                                self.hists["ptjet_mjet_g_reco"].fill(dataset=dataset, ptreco = reco_jet_ee.pt, mreco = reco_jet_ee.msoftdrop, systematic = syst, weight = w)
+
+                                if self.do_gen:
                                     self.hists["response_matrix_u"].fill( dataset=dataset, 
                                                                        ptreco=reco_jet_ee.pt, ptgen=gen_jet_ee.pt,
                                                                        mreco=reco_jet_ee.mass, mgen=gen_jet_ee.mass, systematic = syst,  weight = w )
@@ -758,75 +791,81 @@ class QJetMassProcessor(processor.ProcessorABC):
                                     self.hists["response_matrix_g"].fill( dataset=dataset, 
                                                                        ptreco=reco_jet_ee.pt, ptgen=gen_jet_ee.pt,
                                                                        mreco=reco_jet_ee.msoftdrop, mgen=groomed_gen_jet_ee.mass, systematic = syst, weight = w )
-                                del weights_ee, z_reco_ee, reco_jet_ee, z_gen_ee, gen_jet_ee, groomed_gen_jet_ee, coffea_weights
+                            del weights_ee, z_reco_ee, reco_jet_ee
+                            if self.do_gen:
+                                z_gen_ee, gen_jet_ee, groomed_gen_jet_ee, coffea_weights
+                        
+                    if cat == "mm":
+
+                        events_mm = events[mm_sel]
+                        weights_mm = weights[mm_sel]
+                        if len(events_mm) > 0:
+                            coffea_weights = Weights(size = len(events_mm), storeIndividual = True)
+
+                            coffea_weights.add("init_weight", weights_mm)
+
+                            coffea_weights.add(name = "pu", weight = events_mm.pu_nominal, weightUp = events_mm.pu_U, weightDown = events_mm.pu_D)
+                            coffea_weights.add("q2", events_mm.q2_N, events_mm.q2_U, events_mm.q2_D)
+                            coffea_weights.add("pdf", events_mm.pdf_N, events_mm.pdf_U, events_mm.pdf_D)
+                            coffea_weights.add("prefiring", events_mm.prefiring_N, events_mm.prefiring_U, events_mm.prefiring_D)
                             
-                        if cat == "mm":
+                            mureco_N = events_mm.mureco_N[:,0]*events_mm.mureco_N[:,1]
+                            mureco_U = events_mm.mureco_U[:,0]*events_mm.mureco_U[:,1]
+                            mureco_D = events_mm.mureco_D[:,0]*events_mm.mureco_D[:,1]
+                            
+                            coffea_weights.add(name = "mureco", weight = mureco_N, weightUp = mureco_U, weightDown = mureco_D)
+                            
+                            muid_N = events_mm.muid_N[:,0]*events_mm.muid_N[:,1]
+                            muid_U = events_mm.muid_U[:,0]*events_mm.muid_U[:,1]
+                            muid_D = events_mm.muid_D[:,0]*events_mm.muid_D[:,1]
 
-                            events_mm = events[mm_sel]
-                            weights_mm = weights[mm_sel]
-                            if len(events_mm) > 0:
-                                coffea_weights = Weights(size = len(events_mm), storeIndividual = True)
-    
-                                coffea_weights.add("init_weight", weights_mm)
-    
-                                coffea_weights.add(name = "pu", weight = events_mm.pu_nominal, weightUp = events_mm.pu_U, weightDown = events_mm.pu_D)
-                                coffea_weights.add("q2", events_mm.q2_N, events_mm.q2_U, events_mm.q2_D)
-                                coffea_weights.add("pdf", events_mm.pdf_N, events_mm.pdf_U, events_mm.pdf_D)
-                                coffea_weights.add("prefiring", events_mm.prefiring_N, events_mm.prefiring_U, events_mm.prefiring_D)
-                                
-                                mureco_N = events_mm.mureco_N[:,0]*events_mm.mureco_N[:,1]
-                                mureco_U = events_mm.mureco_U[:,0]*events_mm.mureco_U[:,1]
-                                mureco_D = events_mm.mureco_D[:,0]*events_mm.mureco_D[:,1]
-                                
-                                coffea_weights.add(name = "mureco", weight = mureco_N, weightUp = mureco_U, weightDown = mureco_D)
-                                
-                                muid_N = events_mm.muid_N[:,0]*events_mm.muid_N[:,1]
-                                muid_U = events_mm.muid_U[:,0]*events_mm.muid_U[:,1]
-                                muid_D = events_mm.muid_D[:,0]*events_mm.muid_D[:,1]
+                            coffea_weights.add(name = "muid", weight = muid_N, weightUp = muid_U, weightDown = muid_D)
 
-                                coffea_weights.add(name = "muid", weight = muid_N, weightUp = muid_U, weightDown = muid_D)
+                            mutrig_N = events_mm.mutrig_N[:,0]*events_mm.mutrig_N[:,1]
+                            mutrig_U = events_mm.mutrig_U[:,0]*events_mm.mutrig_U[:,1]
+                            mutrig_D = events_mm.mutrig_D[:,0]*events_mm.mutrig_D[:,1]
 
-                                mutrig_N = events_mm.mutrig_N[:,0]*events_mm.mutrig_N[:,1]
-                                mutrig_U = events_mm.mutrig_U[:,0]*events_mm.mutrig_U[:,1]
-                                mutrig_D = events_mm.mutrig_D[:,0]*events_mm.mutrig_D[:,1]
+                            coffea_weights.add(name = "mutrig", weight = mutrig_N, weightUp = mutrig_U, weightDown = mutrig_D)
+                            
+                            coffea_weights.add(name = "elereco",
+                                               weight = ak.ones_like(events_mm.event, dtype = float), 
+                                               weightUp =  ak.ones_like(events_mm.event, dtype = float),
+                                               weightDown =  ak.ones_like(events_mm.event, dtype = float ))
+                            
+                            coffea_weights.add(name = "eleid",
+                                               weight = ak.ones_like(events_mm.event, dtype = float), 
+                                               weightUp =  ak.ones_like(events_mm.event, dtype = float),
+                                               weightDown =  ak.ones_like(events_mm.event, dtype = float))
+  
+                            del mureco_N, mureco_U, mureco_D, muid_N, muid_U, muid_D, mutrig_N, mutrig_U, mutrig_D
 
-                                coffea_weights.add(name = "mutrig", weight = mutrig_N, weightUp = mutrig_U, weightDown = mutrig_D)
-                                
-                                coffea_weights.add(name = "elereco",
-                                                   weight = ak.ones_like(events_mm.Pileup.nTrueInt), 
-                                                   weightUp =  ak.ones_like(events_mm.Pileup.nTrueInt),
-                                                   weightDown =  ak.ones_like(events_mm.Pileup.nTrueInt))
-                                
-                                coffea_weights.add(name = "eleid",
-                                                   weight = ak.ones_like(events_mm.Pileup.nTrueInt), 
-                                                   weightUp =  ak.ones_like(events_mm.Pileup.nTrueInt),
-                                                   weightDown =  ak.ones_like(events_mm.Pileup.nTrueInt))
-      
-                                del mureco_N, mureco_U, mureco_D, muid_N, muid_U, muid_D, mutrig_N, mutrig_U, mutrig_D
-    
-                                
-    
-                                
-                                z_reco_mm = z_reco[mm_sel]
-                                reco_jet_mm = reco_jet[mm_sel]
-                                #weights = weights[allsel_reco]
+                            
+
+                            
+                            z_reco_mm = z_reco[mm_sel]
+                            reco_jet_mm = reco_jet[mm_sel]
+                            #weights = weights[allsel_reco]
+                            if self.do_gen:
                                 z_gen_mm = z_gen[mm_sel]
                                 gen_jet_mm = gen_jet[mm_sel]
                                 groomed_gen_jet_mm = groomed_gen_jet[mm_sel]
-    
-                    
-                                systematics = [syst for syst in self.systematics if syst not in mm_sys_var_list]
-                                #print("for ee case ", systematics)
-    
-                                for syst in self.systematics:
-                                    if syst == "nominal":
-                                        w = coffea_weights.weight()
-                                        #w = weights
-                                    else:
-                                        #print(coffea_weights.variations)
-                                        w = coffea_weights.weight(modifier = syst)
-                                        #w = weights
-                                        
+
+                
+                            systematics = [syst for syst in self.systematics if syst not in mm_sys_var_list]
+                            #print("for ee case ", systematics)
+
+                            for syst in self.systematics:
+                                if syst == "nominal":
+                                    w = coffea_weights.weight()
+                                    #w = weights
+                                else:
+                                    #print(coffea_weights.variations)
+                                    w = coffea_weights.weight(modifier = syst)
+                                    #w = weights
+                                print(w)    
+                                self.hists["ptjet_mjet_u_reco"].fill(dataset=dataset, ptreco = reco_jet_mm.pt, mreco = reco_jet_mm.mass, systematic = syst, weight = w)
+                                self.hists["ptjet_mjet_g_reco"].fill(dataset=dataset, ptreco = reco_jet_mm.pt, mreco = reco_jet_mm.msoftdrop, systematic = syst, weight = w)
+                                if self.do_gen:
                                     self.hists["response_matrix_u"].fill( dataset=dataset, 
                                                                        ptreco=reco_jet_mm.pt, ptgen=gen_jet_mm.pt,
                                                                        mreco=reco_jet_mm.mass, mgen=gen_jet_mm.mass, systematic = syst,  weight = w )
@@ -834,61 +873,68 @@ class QJetMassProcessor(processor.ProcessorABC):
                                     self.hists["response_matrix_g"].fill( dataset=dataset, 
                                                                        ptreco=reco_jet_mm.pt, ptgen=gen_jet_mm.pt,
                                                                        mreco=reco_jet_mm.msoftdrop, mgen=groomed_gen_jet_mm.mass, systematic = syst, weight = w )
-                                del weights_mm, z_reco_mm, reco_jet_mm, z_gen_mm, gen_jet_mm, groomed_gen_jet_mm
-                    else: ## running over outer loop of jet systematics
-                        if cat == "ee":
+                            del weights_mm, z_reco_mm, reco_jet_mm
+                            if self.do_gen:
+                                del z_gen_mm, gen_jet_mm, groomed_gen_jet_mm
+                else: ## running over outer loop of jet systematics
+                    if cat == "ee":
 
-                            events_ee = events[ee_sel]
-                            weights_ee = weights[ee_sel]
-                            if len(events_ee) > 0:
-                                coffea_weights = Weights(size = len(events_ee), storeIndividual = True)
-    
-                                coffea_weights.add("init_weight", weights_ee)
-    
-                                coffea_weights.add(name = "pu", weight = events_ee.pu_nominal, weightUp = events_ee.pu_U, weightDown = events_ee.pu_D)
-                                coffea_weights.add("q2", events_ee.q2_N, events_ee.q2_U, events_ee.q2_D)
-                                coffea_weights.add("pdf", events_ee.pdf_N, events_ee.pdf_U, events_ee.pdf_D)
-                                coffea_weights.add("prefiring", events_ee.prefiring_N, events_ee.prefiring_U, events_ee.prefiring_D)
-                                
-                                elereco_N = events_ee.elereco_N[:,0]*events_ee.elereco_N[:,1]
-                                elereco_U = events_ee.elereco_U[:,0]*events_ee.elereco_U[:,1]
-                                elereco_D = events_ee.elereco_D[:,0]*events_ee.elereco_D[:,1]
-                                
-                                coffea_weights.add(name = "elereco", weight = elereco_N, weightUp = elereco_U, weightDown = elereco_D)
-                                
-                                eleid_N = events_ee.eleid_N[:,0]*events_ee.eleid_N[:,1]
-                                eleid_U = events_ee.eleid_U[:,0]*events_ee.eleid_U[:,1]
-                                eleid_D = events_ee.eleid_D[:,0]*events_ee.eleid_D[:,1]
+                        events_ee = events[ee_sel]
+                        weights_ee = weights[ee_sel]
+                        if len(events_ee) > 0:
+                            coffea_weights = Weights(size = len(events_ee), storeIndividual = True)
 
-                                coffea_weights.add(name = "eleid", weight = eleid_N, weightUp = eleid_U, weightDown = eleid_D)
-                                
-                                coffea_weights.add(name = "mureco",
-                                                   weight = ak.ones_like(events_ee.Pileup.nTrueInt), 
-                                                   weightUp =  ak.ones_like(events_ee.Pileup.nTrueInt),
-                                                   weightDown =  ak.ones_like(events_ee.Pileup.nTrueInt))
+                            coffea_weights.add("init_weight", weights_ee)
 
-                                coffea_weights.add(name = "muid",
-                                                   weight = ak.ones_like(events_ee.Pileup.nTrueInt), 
-                                                   weightUp =  ak.ones_like(events_ee.Pileup.nTrueInt),
-                                                   weightDown =  ak.ones_like(events_ee.Pileup.nTrueInt))
+                            coffea_weights.add(name = "pu", weight = events_ee.pu_nominal, weightUp = events_ee.pu_U, weightDown = events_ee.pu_D)
+                            coffea_weights.add("q2", events_ee.q2_N, events_ee.q2_U, events_ee.q2_D)
+                            coffea_weights.add("pdf", events_ee.pdf_N, events_ee.pdf_U, events_ee.pdf_D)
+                            coffea_weights.add("prefiring", events_ee.prefiring_N, events_ee.prefiring_U, events_ee.prefiring_D)
+                            
+                            elereco_N = events_ee.elereco_N[:,0]*events_ee.elereco_N[:,1]
+                            elereco_U = events_ee.elereco_U[:,0]*events_ee.elereco_U[:,1]
+                            elereco_D = events_ee.elereco_D[:,0]*events_ee.elereco_D[:,1]
+                            
+                            coffea_weights.add(name = "elereco", weight = elereco_N, weightUp = elereco_U, weightDown = elereco_D)
+                            
+                            eleid_N = events_ee.eleid_N[:,0]*events_ee.eleid_N[:,1]
+                            eleid_U = events_ee.eleid_U[:,0]*events_ee.eleid_U[:,1]
+                            eleid_D = events_ee.eleid_D[:,0]*events_ee.eleid_D[:,1]
 
-                                coffea_weights.add(name = "mutrig",
-                                                   weight = ak.ones_like(events_ee.Pileup.nTrueInt), 
-                                                   weightUp =  ak.ones_like(events_ee.Pileup.nTrueInt),
-                                                   weightDown =  ak.ones_like(events_ee.Pileup.nTrueInt))
-    
-                                
-                                del elereco_N, elereco_U, elereco_D, eleid_N, eleid_U, eleid_D
-                                
-                                z_reco_ee = z_reco[ee_sel]
-                                reco_jet_ee = reco_jet[ee_sel]
-                                #weights = weights[allsel_reco]
+                            coffea_weights.add(name = "eleid", weight = eleid_N, weightUp = eleid_U, weightDown = eleid_D)
+                            
+                            coffea_weights.add(name = "mureco",
+                                               weight = ak.ones_like(events_ee.event, dtype = float), 
+                                               weightUp =  ak.ones_like(events_ee.event, dtype = float),
+                                               weightDown =  ak.ones_like(events_ee.event, dtype = float))
+
+                            coffea_weights.add(name = "muid",
+                                               weight = ak.ones_like(events_ee.event, dtype = float), 
+                                               weightUp =  ak.ones_like(events_ee.event, dtype = float),
+                                               weightDown =  ak.ones_like(events_ee.event, dtype = float))
+
+                            coffea_weights.add(name = "mutrig",
+                                               weight = ak.ones_like(events_ee.event, dtype = float), 
+                                               weightUp =  ak.ones_like(events_ee.event, dtype = float),
+                                               weightDown =  ak.ones_like(events_ee.event, dtype = float))
+
+                            
+                            del elereco_N, elereco_U, elereco_D, eleid_N, eleid_U, eleid_D
+                            
+                            z_reco_ee = z_reco[ee_sel]
+                            reco_jet_ee = reco_jet[ee_sel]
+                            #weights = weights[allsel_reco]
+                            if self.do_gen:
                                 z_gen_ee = z_gen[ee_sel]
                                 gen_jet_ee = gen_jet[ee_sel]
                                 groomed_gen_jet_ee = groomed_gen_jet[ee_sel]
-    
-                                w = coffea_weights.weight()
-                                
+
+                            w = coffea_weights.weight()
+
+                            self.hists["ptjet_mjet_u_reco"].fill(dataset=dataset, ptreco = reco_jet_ee.pt, mreco = reco_jet_ee.mass, systematic = jet_syst, weight = w)
+                            self.hists["ptjet_mjet_g_reco"].fill(dataset=dataset, ptreco = reco_jet_ee.pt, mreco = reco_jet_ee.msoftdrop, systematic = jet_syst, weight = w)
+
+                            if self.do_gen:
                                 self.hists["response_matrix_u"].fill( dataset=dataset, 
                                                                        ptreco=reco_jet_ee.pt, ptgen=gen_jet_ee.pt,
                                                                        mreco=reco_jet_ee.mass, mgen=gen_jet_ee.mass, systematic = jet_syst,  weight = w )
@@ -896,70 +942,75 @@ class QJetMassProcessor(processor.ProcessorABC):
                                 self.hists["response_matrix_g"].fill( dataset=dataset, 
                                                                        ptreco=reco_jet_ee.pt, ptgen=gen_jet_ee.pt,
                                                                        mreco=reco_jet_ee.msoftdrop, mgen=groomed_gen_jet_ee.mass, systematic = jet_syst, weight = w )
-                                del weights_ee, z_reco_ee, reco_jet_ee, z_gen_ee, gen_jet_ee, groomed_gen_jet_ee
-                                
-                        if cat == "mm":
-                            events_mm = events[mm_sel]
-                            weights_mm = weights[mm_sel]
-                            if len(events_mm) > 0:
-                                coffea_weights = Weights(size = len(events_mm), storeIndividual = True)
-    
-                                coffea_weights.add("init_weight", weights_mm)
-    
-                                
-                                coffea_weights.add(name = "pu", weight = events_mm.pu_nominal, weightUp = events_mm.pu_U, weightDown = events_mm.pu_D)
-                                coffea_weights.add("q2", events_mm.q2_N, events_mm.q2_U, events_mm.q2_D)
-                                coffea_weights.add("pdf", events_mm.pdf_N, events_mm.pdf_U, events_mm.pdf_D)
-                                coffea_weights.add("prefiring", events_mm.prefiring_N, events_mm.prefiring_U, events_mm.prefiring_D)
-                                
-                                mureco_N = events_mm.mureco_N[:,0]*events_mm.mureco_N[:,1]
-                                mureco_U = events_mm.mureco_U[:,0]*events_mm.mureco_U[:,1]
-                                mureco_D = events_mm.mureco_D[:,0]*events_mm.mureco_D[:,1]
-                                
-                                coffea_weights.add(name = "mureco", weight = mureco_N, weightUp = mureco_U, weightDown = mureco_D)
-                                
-                                muid_N = events_mm.muid_N[:,0]*events_mm.muid_N[:,1]
-                                muid_U = events_mm.muid_U[:,0]*events_mm.muid_U[:,1]
-                                muid_D = events_mm.muid_D[:,0]*events_mm.muid_D[:,1]
+                            del weights_ee, z_reco_ee, reco_jet_ee
+                            if self.do_gen:
+                                del z_gen_ee, gen_jet_ee, groomed_gen_jet_ee
+                            
+                    if cat == "mm":
+                        events_mm = events[mm_sel]
+                        weights_mm = weights[mm_sel]
+                        if len(events_mm) > 0:
+                            coffea_weights = Weights(size = len(events_mm), storeIndividual = True)
 
-                                coffea_weights.add(name = "muid", weight = muid_N, weightUp = muid_U, weightDown = muid_D)
+                            coffea_weights.add("init_weight", weights_mm)
 
-                                mutrig_N = events_mm.mutrig_N[:,0]*events_mm.mutrig_N[:,1]
-                                mutrig_U = events_mm.mutrig_U[:,0]*events_mm.mutrig_U[:,1]
-                                mutrig_D = events_mm.mutrig_D[:,0]*events_mm.mutrig_D[:,1]
+                            
+                            coffea_weights.add(name = "pu", weight = events_mm.pu_nominal, weightUp = events_mm.pu_U, weightDown = events_mm.pu_D)
+                            coffea_weights.add("q2", events_mm.q2_N, events_mm.q2_U, events_mm.q2_D)
+                            coffea_weights.add("pdf", events_mm.pdf_N, events_mm.pdf_U, events_mm.pdf_D)
+                            coffea_weights.add("prefiring", events_mm.prefiring_N, events_mm.prefiring_U, events_mm.prefiring_D)
+                            
+                            mureco_N = events_mm.mureco_N[:,0]*events_mm.mureco_N[:,1]
+                            mureco_U = events_mm.mureco_U[:,0]*events_mm.mureco_U[:,1]
+                            mureco_D = events_mm.mureco_D[:,0]*events_mm.mureco_D[:,1]
+                            
+                            coffea_weights.add(name = "mureco", weight = mureco_N, weightUp = mureco_U, weightDown = mureco_D)
+                            
+                            muid_N = events_mm.muid_N[:,0]*events_mm.muid_N[:,1]
+                            muid_U = events_mm.muid_U[:,0]*events_mm.muid_U[:,1]
+                            muid_D = events_mm.muid_D[:,0]*events_mm.muid_D[:,1]
 
-                                coffea_weights.add(name = "mutrig", weight = mutrig_N, weightUp = mutrig_U, weightDown = mutrig_D)
-                                
-                                coffea_weights.add(name = "elereco",
-                                                   weight = ak.ones_like(events_mm.Pileup.nTrueInt), 
-                                                   weightUp =  ak.ones_like(events_mm.Pileup.nTrueInt),
-                                                   weightDown =  ak.ones_like(events_mm.Pileup.nTrueInt))
-                                
-                                coffea_weights.add(name = "eleid",
-                                                   weight = ak.ones_like(events_mm.Pileup.nTrueInt), 
-                                                   weightUp =  ak.ones_like(events_mm.Pileup.nTrueInt),
-                                                   weightDown =  ak.ones_like(events_mm.Pileup.nTrueInt))
-      
-                                del mureco_N, mureco_U, mureco_D, muid_N, muid_U, muid_D, mutrig_N, mutrig_U, mutrig_D
-    
-                                
-    
-                                
-                                z_reco_mm = z_reco[mm_sel]
-                                reco_jet_mm = reco_jet[mm_sel]
-                                #weights = weights[allsel_reco]
+                            coffea_weights.add(name = "muid", weight = muid_N, weightUp = muid_U, weightDown = muid_D)
+
+                            mutrig_N = events_mm.mutrig_N[:,0]*events_mm.mutrig_N[:,1]
+                            mutrig_U = events_mm.mutrig_U[:,0]*events_mm.mutrig_U[:,1]
+                            mutrig_D = events_mm.mutrig_D[:,0]*events_mm.mutrig_D[:,1]
+
+                            coffea_weights.add(name = "mutrig", weight = mutrig_N, weightUp = mutrig_U, weightDown = mutrig_D)
+                            
+                            coffea_weights.add(name = "elereco",
+                                               weight = ak.ones_like(events_mm.event, dtype = float), 
+                                               weightUp =  ak.ones_like(events_mm.event, dtype = float),
+                                               weightDown =  ak.ones_like(events_mm.event, dtype = float))
+                            
+                            coffea_weights.add(name = "eleid",
+                                               weight = ak.ones_like(events_mm.event, dtype = float), 
+                                               weightUp =  ak.ones_like(events_mm.event, dtype = float),
+                                               weightDown =  ak.ones_like(events_mm.event, dtype = float))
+  
+                            del mureco_N, mureco_U, mureco_D, muid_N, muid_U, muid_D, mutrig_N, mutrig_U, mutrig_D
+
+                            
+
+                            
+                            z_reco_mm = z_reco[mm_sel]
+                            reco_jet_mm = reco_jet[mm_sel]
+                            #weights = weights[allsel_reco]
+                            if self.do_gen:
                                 z_gen_mm = z_gen[mm_sel]
                                 gen_jet_mm = gen_jet[mm_sel]
                                 groomed_gen_jet_mm = groomed_gen_jet[mm_sel]
-    
-                    
-                                systematics = [syst for syst in self.systematics if syst not in mm_sys_var_list]
-                                #print("for ee case ", systematics)
-    
-    
-                                w = coffea_weights.weight()
-     
-                                        
+
+                
+                            systematics = [syst for syst in self.systematics if syst not in mm_sys_var_list]
+                            #print("for ee case ", systematics)
+
+
+                            w = coffea_weights.weight()
+ 
+                            self.hists["ptjet_mjet_u_reco"].fill(dataset=dataset, ptreco = reco_jet_mm.pt, mreco = reco_jet_mm.mass, systematic = jet_syst, weight = w)
+                            self.hists["ptjet_mjet_g_reco"].fill(dataset=dataset, ptreco = reco_jet_mm.pt, mreco = reco_jet_mm.msoftdrop, systematic = jet_syst, weight = w)      
+                            if self.do_gen:
                                 self.hists["response_matrix_u"].fill( dataset=dataset, 
                                                                    ptreco=reco_jet_mm.pt, ptgen=gen_jet_mm.pt,
                                                                    mreco=reco_jet_mm.mass, mgen=gen_jet_mm.mass, systematic = jet_syst,  weight = w )
@@ -967,14 +1018,17 @@ class QJetMassProcessor(processor.ProcessorABC):
                                 self.hists["response_matrix_g"].fill( dataset=dataset, 
                                                                    ptreco=reco_jet_mm.pt, ptgen=gen_jet_mm.pt,
                                                                    mreco=reco_jet_mm.msoftdrop, mgen=groomed_gen_jet_mm.mass, systematic = jet_syst, weight = w )
-                                del weights_mm, z_reco_mm, reco_jet_mm, z_gen_mm, gen_jet_mm, groomed_gen_jet_mm
+                            del weights_mm, z_reco_mm, reco_jet_mm
+                            if self.do_gen:
+                                del z_gen_mm, gen_jet_mm, groomed_gen_jet_mm
 
                 
 
                 
                         
-                del events, weights
-            
+            del events, weights
+            if not self.do_gen:
+                break ###only doing nominal when dealing with data
 
         
         for name in sel.names:
