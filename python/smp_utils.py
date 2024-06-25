@@ -59,13 +59,11 @@ class util_binning :
     def __init__(self):
         #self.ptreco_axis = hist.axis.Variable([200,260,350,460,550,650,760,13000], name="ptreco", label=r"p_{T,RECO} (GeV)")   
         
-        self.mgen_axis = hist.axis.Variable([0, 30, 40, 60, 80, 100, 150, 200, 13000], name="mgen", label=r"Mass (GeV)")
+        self.mgen_axis = hist.axis.Variable([0, 30, 40, 60, 80, 100, 13000], name="mgen", label=r"Mass (GeV)")
         self.mreco_axis = hist.axis.Variable( [0.000e+00, 7.500e+00, 1.500e+01, 2.250e+01, 3.000e+01, 3.250e+01,
        3.500e+01, 3.750e+01, 4.000e+01, 4.500e+01, 5.000e+01, 5.500e+01,
        6.000e+01, 6.500e+01, 7.000e+01, 7.500e+01, 8.000e+01, 8.500e+01,
-       9.000e+01, 9.500e+01, 1.000e+02, 1.125e+02, 1.250e+02, 1.375e+02,
-       1.500e+02, 1.625e+02, 1.750e+02, 1.875e+02, 2.000e+02, 3.275e+03,
-       6.350e+03, 9.425e+03, 1.300e+04] , name="mreco", label=r"m_{RECO} (GeV)")
+       9.000e+01, 9.500e+01, 1.000e+02, 13000] , name="mreco", label=r"m_{RECO} (GeV)")
         #self.ptgen_axis = hist.axis.Variable([200,260,350,460,550,650,760,13000], name="ptgen", label=r"p_{T,RECO} (GeV)")   
 
         self.ptgen_axis = hist.axis.Variable([140, 200, 260, 350, 460, 13000], name="ptgen", label=r"p_{T,GEN} (GeV)")  
@@ -76,8 +74,8 @@ class util_binning :
         # self.ptreco_axis = hist.axis.Variable([ 140, 200.,   260.,   350.,   460., 13000.], name="ptreco", label=r"p_{T,RECO} (GeV)")
         #self.mgen_axis = hist.axis.Variable( [0,2.5,5,7.5,10,15,20,30,40,50,60,70,80,90,100,125,150,175,200,225,250,275,300,325,350,1000], name="mgen", label=r"Mass [GeV]")
         
-        self.gen_binning = tunfold_binning( self.mgen_axis.edges, self.ptgen_axis.edges, True, True )
-        self.reco_binning = tunfold_binning( self.mreco_axis.edges, self.ptreco_axis.edges, True, True )
+        self.gen_binning = tunfold_binning( self.mgen_axis.edges, self.ptgen_axis.edges, True, False )
+        self.reco_binning = tunfold_binning( self.mreco_axis.edges, self.ptreco_axis.edges, True, False )
         
         self.gen_axis = hist.axis.Regular(self.gen_binning.total_nbin, 0, self.gen_binning.total_nbin, name = "bin_gen", label = "Generator")
         self.reco_axis =  hist.axis.Regular(self.reco_binning.total_nbin, 0, self.reco_binning.total_nbin, name = "bin_reco", label = "Detector")
