@@ -20,8 +20,12 @@ from python.response_maker_nanov9_lib import *
 
 
 
-def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = "root://xcache/", skimfilename=None, eras_mc = None, jet_syst = "nominal", dask = False): 
+def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = "root://xcache/", skimfilename=None, eras_mc = None, do_syst = False , dask = False, do_jk = False, fname_out = None): 
 
+
+    if do_jk == True:
+        do_syst = False
+        do_gen = True
     filedir = "samples/"
 
     eras_data = [
@@ -35,7 +39,10 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
     
     if not testing: 
         nworkers = 1
-        chunksize = 200000
+        if do_syst or do_jk:
+            chunksize = 100000
+        else:
+            chunksize = 200000
         maxchunks = None
     elif dask and (client != None):
         chunksize = 10000
@@ -44,10 +51,12 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
         client = None
         nworkers = 1
         if do_gen: 
-            chunksize = 1000
+            chunksize = 200000
         else:
             chunksize=100000
-        maxchunks = 1
+        maxchunks = 10
+
+    print("Chunk Size ", chunksize)
     fileset = {}
     if not testing: 
         
@@ -58,7 +67,7 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
             for era in eras_mc: 
                 filename = filedir + dy_mc_filestr % (era)
                 with open(filename) as f:
-                    dy_mc_files = [prependstr + i.rstrip() for i in f.readlines() if i[0] != "#" ]
+                    dy_mc_files = [prependstr + i.rstrip() for i in f.readlines() if i[0] != "#"  ] 
                     fileset[era] = dy_mc_files
         else: 
             datasets_data = [
@@ -80,8 +89,10 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
     else: 
         if do_gen:
             filename = filedir+"subset2016mc.txt"
+            #fileset["UL2018"] = [prependstr+'/store/mc/RunIISummer20UL18NanoAODv9/DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/270000/42C39ABF-7352-5547-A226-E3FA9DD0E72B.root']
             with open(filename) as f:
-                fileset["UL2016"] = [prependstr + i.rstrip() for i in f.readlines() if i[0] != "#" ]
+                fileset["UL16NanoAODv9"] = [prependstr + i.rstrip() for i in f.readlines() if i[0] != "#" ]
+            
         else: 
             fileset["UL2018"] = [prependstr + "/store/data/Run2018A/SingleMuon/NANOAOD/UL2018_MiniAODv2_NanoAODv9_GT36-v1/2820000/FF8A3CD2-3F51-7A43-B56C-7F7B7B3158E3.root"]
 
@@ -127,17 +138,26 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
     output = run(
         fileset,
         "Events",
-        processor_instance=QJetMassProcessor(do_gen=do_gen, skimfilename=skimfilename, jet_syst = jet_syst),
+        processor_instance=QJetMassProcessor(do_gen=do_gen, skimfilename=skimfilename, do_syst = do_syst, do_jk = do_jk),
     )
 
     print("Done running")
-    
-    if do_gen:
-        if testing == False:
-            fname_out = 'qjetmass_zjets_gen_'+eras_mc[0]+'_' +"all_syst" +'.pkl'
+    if fname_out == None:
+        if do_gen:
+            if testing == False:
+                if len(eras_mc)==1:
+                    fname_out = 'qjetmass_zjets_gen_'+eras_mc[0]+'_' +"all_syst" +'.pkl'
+                else:
+                    fname_out = 'qjetmass_zjets_gen_'+'_' +"all_syst" +'.pkl'
+            else:
+                fname_out = 'test_qjetmass_zjets_gen_'+eras_mc[0]+'_' +"all_syst" +'.pkl'
         else:
-            fname_out = 'test_qjetmass_zjets_gen_'+eras_mc[0]+'_' +"all_syst" +'.pkl'
-    else:
-        fname_out = 'qjetmass_zjets_reco.pkl'
+            if testing == True:
+                fname_out = 'test_qjetmass_zjets_reco.pkl'
+            else:
+                fname_out = 'qjetmass_zjets_reco.pkl'
+        if do_jk:
+            fname_out = 'jackknife_output.pkl'
     with open(fname_out, "wb") as f:
         pickle.dump( output, f )
+    print(fname_out ," was created.")

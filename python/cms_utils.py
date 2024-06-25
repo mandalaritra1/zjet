@@ -28,6 +28,29 @@ import os
 
 
 
+
+
+lumi = {'2018' : 59740,
+        '2017': 41480,
+        '2016': 36330 
+       }
+
+numentries = {
+    'UL16NanoAODv9':27417103,
+    'UL17NanoAODv9': 59243606,
+    'UL18NanoAODv9': 84844279   
+}
+
+def getXSweight(dataset, IOV):
+    z_xs = 6077.22
+    if IOV=='2016APV' or IOV=='2016':
+        lum_val = lumi['2016']
+    else:
+        lum_val = lumi[IOV]
+    
+    weight  = (lum_val*6077.22)/numentries[dataset]
+    return weight
+
 def GetJetCorrections(FatJets, events, era, IOV, isData=False, uncertainties = None):
     if uncertainties != None:
         uncertainty_sources = uncertainties
@@ -152,13 +175,15 @@ def GetJetCorrections(FatJets, events, era, IOV, isData=False, uncertainties = N
     FatJets['pt_raw'] = (1 - FatJets['rawFactor']) * FatJets['pt']
     FatJets['mass_raw'] = (1 - FatJets['rawFactor']) * FatJets['mass']
     FatJets['rho'] = ak.broadcast_arrays(events.fixedGridRhoFastjetAll, FatJets.pt)[0]
-    FatJets['pt_gen'] = ak.values_astype(ak.fill_none(FatJets.matched_gen.pt, 0), np.float32)
+    if not isData:
+        FatJets['pt_gen'] = ak.values_astype(ak.fill_none(FatJets.matched_gen.pt, 0), np.float32)
     
     name_map = jec_stack.blank_name_map
     name_map['JetPt'] = 'pt'
     name_map['JetMass'] = 'mass'
     name_map['JetEta'] = 'eta'
     name_map['JetA'] = 'area'
+
     name_map['ptGenJet'] = 'pt_gen'
     name_map['ptRaw'] = 'pt_raw'
     name_map['massRaw'] = 'mass_raw'
