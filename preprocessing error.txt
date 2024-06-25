@@ -1,0 +1,96 @@
+/opt/conda/lib/python3.10/site-packages/coffea/processor/executor.py:1345: UserWarning: file not found ([ERROR] Server responded with an error: [3000] Unable to open - cannot determine the prefix path to use for the given filesystem id /store/mc/RunIISummer20UL18NanoAODv9/DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/270000/42C39ABF-7352-5547-A226-E3FA9DD0E72B.root; invalid argument
+)
+
+    'root://cmsxrootd.fnal.gov//store/mc/RunIISummer20UL18NanoAODv9/DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/270000/42C39ABF-7352-5547-A226-E3FA9DD0E72B.root'
+
+Files may be specified as:
+   * str/bytes: relative or absolute filesystem path or URL, without any colons
+         other than Windows drive letter or URL schema.
+         Examples: "rel/file.root", "C:\abs\file.root", "http://where/what.root"
+   * str/bytes: same with an object-within-ROOT path, separated by a colon.
+         Example: "rel/file.root:tdirectory/ttree"
+   * pathlib.Path: always interpreted as a filesystem path or URL only (no
+         object-within-ROOT path), regardless of whether there are any colons.
+         Examples: Path("rel:/file.root"), Path("/abs/path:stuff.root")
+
+Functions that accept many files (uproot.iterate, etc.) also allow:
+   * glob syntax in str/bytes and pathlib.Path.
+         Examples: Path("rel/*.root"), "/abs/*.root:tdirectory/ttree"
+   * dict: keys are filesystem paths, values are objects-within-ROOT paths.
+         Example: {"/data_v1/*.root": "ttree_v1", "/data_v2/*.root": "ttree_v2"}
+   * already-open TTree objects.
+   * iterables of the above.
+
+  warnings.warn(str(e))
+/opt/conda/lib/python3.10/site-packages/coffea/processor/executor.py:1345: UserWarning: file not found ([ERROR] Server responded with an error: [3000] Unable to open - cannot determine the prefix path to use for the given filesystem id /store/mc/RunIISummer20UL17NanoAODv9/DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8/NANOAODSIM/106X_mc2017_realistic_v9-v1/70000/9E8FCE66-E470-714D-B562-2C95EA70E53F.root; invalid argument
+)
+
+    'root://cmsxrootd.fnal.gov//store/mc/RunIISummer20UL17NanoAODv9/DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8/NANOAODSIM/106X_mc2017_realistic_v9-v1/70000/9E8FCE66-E470-714D-B562-2C95EA70E53F.root'
+
+Files may be specified as:
+   * str/bytes: relative or absolute filesystem path or URL, without any colons
+         other than Windows drive letter or URL schema.
+         Examples: "rel/file.root", "C:\abs\file.root", "http://where/what.root"
+   * str/bytes: same with an object-within-ROOT path, separated by a colon.
+         Example: "rel/file.root:tdirectory/ttree"
+   * pathlib.Path: always interpreted as a filesystem path or URL only (no
+         object-within-ROOT path), regardless of whether there are any colons.
+         Examples: Path("rel:/file.root"), Path("/abs/path:stuff.root")
+
+Functions that accept many files (uproot.iterate, etc.) also allow:
+   * glob syntax in str/bytes and pathlib.Path.
+         Examples: Path("rel/*.root"), "/abs/*.root:tdirectory/ttree"
+   * dict: keys are filesystem paths, values are objects-within-ROOT paths.
+         Example: {"/data_v1/*.root": "ttree_v1", "/data_v2/*.root": "ttree_v2"}
+   * already-open TTree objects.
+   * iterables of the above.
+
+  warnings.warn(str(e))
+/opt/conda/lib/python3.10/site-packages/coffea/processor/executor.py:1345: UserWarning: file not found ([ERROR] Server responded with an error: [3000] Unable to open - cannot determine the prefix path to use for the given filesystem id /store/mc/RunIISummer20UL18NanoAODv9/DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/270000/BDAF1AF6-DA83-2741-A136-BF3011EE4229.root; invalid argument
+)
+
+    'root://cmsxrootd.fnal.gov//store/mc/RunIISummer20UL18NanoAODv9/DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/270000/BDAF1AF6-DA83-2741-A136-BF3011EE4229.root'
+
+Files may be specified as:
+   * str/bytes: relative or absolute filesystem path or URL, without any colons
+         other than Windows drive letter or URL schema.
+         Examples: "rel/file.root", "C:\abs\file.root", "http://where/what.root"
+   * str/bytes: same with an object-within-ROOT path, separated by a colon.
+         Example: "rel/file.root:tdirectory/ttree"
+   * pathlib.Path: always interpreted as a filesystem path or URL only (no
+         object-within-ROOT path), regardless of whether there are any colons.
+         Examples: Path("rel:/file.root"), Path("/abs/path:stuff.root")
+
+Functions that accept many files (uproot.iterate, etc.) also allow:
+   * glob syntax in str/bytes and pathlib.Path.
+         Examples: Path("rel/*.root"), "/abs/*.root:tdirectory/ttree"
+   * dict: keys are filesystem paths, values are objects-within-ROOT paths.
+         Example: {"/data_v1/*.root": "ttree_v1", "/data_v2/*.root": "ttree_v2"}
+   * already-open TTree objects.
+   * iterables of the above.
+
+  warnings.warn(str(e))
+/opt/conda/lib/python3.10/site-packages/coffea/processor/executor.py:1345: UserWarning: file not found ([ERROR] Server responded with an error: [3000] Unable to open - cannot determine the prefix path to use for the given filesystem id /store/mc/RunIISummer20UL16NanoAODv9/DYJetsToLL_M-50_HT-70to100_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8/NANOAODSIM/106X_mcRun2_asymptotic_v17-v2/2430000/141FED6D-E376-684B-A10E-D3C8B574E623.root; invalid argument
+)
+
+    'root://cmsxrootd.fnal.gov//store/mc/RunIISummer20UL16NanoAODv9/DYJetsToLL_M-50_HT-70to100_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8/NANOAODSIM/106X_mcRun2_asymptotic_v17-v2/2430000/141FED6D-E376-684B-A10E-D3C8B574E623.root'
+
+Files may be specified as:
+   * str/bytes: relative or absolute filesystem path or URL, without any colons
+         other than Windows drive letter or URL schema.
+         Examples: "rel/file.root", "C:\abs\file.root", "http://where/what.root"
+   * str/bytes: same with an object-within-ROOT path, separated by a colon.
+         Example: "rel/file.root:tdirectory/ttree"
+   * pathlib.Path: always interpreted as a filesystem path or URL only (no
+         object-within-ROOT path), regardless of whether there are any colons.
+         Examples: Path("rel:/file.root"), Path("/abs/path:stuff.root")
+
+Functions that accept many files (uproot.iterate, etc.) also allow:
+   * glob syntax in str/bytes and pathlib.Path.
+         Examples: Path("rel/*.root"), "/abs/*.root:tdirectory/ttree"
+   * dict: keys are filesystem paths, values are objects-within-ROOT paths.
+         Example: {"/data_v1/*.root": "ttree_v1", "/data_v2/*.root": "ttree_v2"}
+   * already-open TTree objects.
+   * iterables of the above.
+
+  warnings.warn(str(e))
