@@ -235,7 +235,7 @@ class QJetMassProcessor(processor.ProcessorABC):
         else:
             self.systematics = ['nominal']
         if do_syst:
-            self.jet_systematics = ["nominal", "JERUp", "JERDown"]
+            self.jet_systematics = ["nominal", "JERUp", "JERDown", "hem"]
         else:
             self.jet_systematics = ["nominal"]
         
@@ -375,10 +375,17 @@ class QJetMassProcessor(processor.ProcessorABC):
                 events0["eleid_N"] = GetEleSF(IOV, "Tight", events0.Electron.eta, events0.Electron.pt)
                 events0["eleid_U"] = GetEleSF(IOV, "Tight", events0.Electron.eta, events0.Electron.pt, "up")
                 events0["eleid_D"] = GetEleSF(IOV, "Tight", events0.Electron.eta, events0.Electron.pt, "down")
+
+
+                # Electron Trig Systematics
+
+
+                events0["eletrig_N"] = GetEleTrigEff(IOV, events0.Electron.pt, events0.Electron.eta, var = "")
+                
+                events0["eletrig_U"] = GetEleTrigEff(IOV, events0.Electron.pt, events0.Electron.eta, var = "up")
+                events0["eletrig_D"] = GetEleTrigEff(IOV, events0.Electron.pt, events0.Electron.eta, var = "down")
                 
                 # Muon Reco systematics
-                
-    
                 events0["mureco_N"] = GetMuonSF(IOV, "RECO", np.abs(events0.Muon.eta), events0.Muon.pt) 
                 events0["mureco_U"] = GetMuonSF(IOV, "RECO", np.abs(events0.Muon.eta), events0.Muon.pt, "systup")
                 events0["mureco_D"] = GetMuonSF(IOV, "RECO", np.abs(events0.Muon.eta), events0.Muon.pt, "systdown")
@@ -442,68 +449,101 @@ class QJetMassProcessor(processor.ProcessorABC):
                 print("Trigger Selection ", ak.sum(sel.require(trigsel = True)))
 
 
-            #print("before correction pt, mass, mass_sf ", events0.FatJet.pt, events0.FatJet.mass, events0.FatJet.msoftdrop)
-            # if self.do_gen:
-            #     corrections.update({"jesUp": recojets.JES_jes.up})
-            # for sys_name in corrections.keys():
-                 
-            #     events = ak.with_field(events, corrections[sys_name], "FatJet")
+            
     
-    
-            #############################
-            ## adding jet corrections ##
-            #############################
+
+
+        
+            #corr_jets = events0.FatJet
+            
+        
+        
             corr_jets = GetJetCorrections(events0.FatJet, events0, era, IOV, isData = not self.do_gen)
-            #print("after correction pt, mass, mass_sf ", corr_jets.pt, corr_jets.mass, corr_jets.msoftdrop)
+            corr_jets2 = GetJetCorrections_sd(events0.FatJet, events0, era, IOV, isData = not self.do_gen)
+
+
+            corr_jets= ak.with_field(corr_jets, corr_jets2.msoftdrop, "msoftdrop")
+
+            corr_jets = corr_jets[(corr_jets.jetId > 1)]
+ 
+            del corr_jets2
+
+            # print("Combined Correction ")
+            # print(corr_jets.pt) 
+            # print(corr_jets.mass)
+            # print(corr_jets.msoftdrop)
             
             #print("Jet corrections working")
             # print("length of recojets JES up: " , len(corr_jets.JES_jes.up))
             # print("length of recojets JES down: " , len(corr_jets.JES_jes.down))
             # print("length of recojets JER up: " , len(corr_jets.JER.up))
             # print("length of recojets JER down: " , len(corr_jets.JER.down))
-    
-    
+            ### JMS Systematics
+            # print("Nominal")
+            # print (corr_jets.JER.up.fields)
+            # new_fatjet = jmrsf(IOV, corr_jets, var = '')
+            # print("Old Mass", corr_jets.mass)
+            # print("New mass", new_fatjet.mass)
+            
+
             ####### Uncomment when not testing ####################
-    
+            #self.jet_systematics = ["nominal"]
+
+            
             if self.do_syst:
                 for unc_src in (unc_src for unc_src in corr_jets.fields if "JES" in unc_src):
                     #print("Uncertainty source: ", unc_src)
                     #print(corr_jets[unc_src])
                     self.jet_systematics.append(unc_src+"Up")
                     self.jet_systematics.append(unc_src+"Down")
-    
+                    
+                self.jet_systematics.append("JMRUp")
+                self.jet_systematics.append("JMRDown")
+                self.jet_systematics.append("JMSUp")
+                self.jet_systematics.append("JMSDown")
     
                     
             
-            #print("length of original event: " , len(events_original))
+            
     
       
             for jet_syst in self.jet_systematics:
                 #print("length of event in loop: " , len(events))
-                # print("JES" in jet_syst)
+                print(" Now doing ", jet_syst)
                 # print(jet_syst[:-2])
                 # print(jet_syst[:-2]=="Up")
                 # print("f")
                 if jet_syst == "nominal":
-                    events = ak.with_field(events0, corr_jets, "FatJet")
+                    events = ak.with_field(events0,  jmssf(IOV, jmrsf(IOV,corr_jets)) , "FatJet")
                     
-                
+                elif jet_syst == "hem":
+                    events = ak.with_field(events0,  HEMCleaning(IOV,jmssf(IOV, jmrsf(IOV,corr_jets))) , "FatJet")
                 elif jet_syst == "JERUp":
-                    events = ak.with_field(events0, corr_jets.JER.up, "FatJet")
+                    events = ak.with_field(events0, jmssf(IOV, jmrsf(IOV,corr_jets.JER.up)), "FatJet")
     
                 elif jet_syst == "JERDown":
-                    events = ak.with_field(events0, corr_jets.JER.down, "FatJet")
+                    events = ak.with_field(events0, jmssf(IOV, jmrsf(IOV,corr_jets.JER.down)), "FatJet")
+                elif jet_syst == "JMRUp":
+                    events = ak.with_field(events0,  jmssf(IOV, jmrsf(IOV,corr_jets, var = "up")) , "FatJet")
+                elif jet_syst == "JMRDown":
+                    events = ak.with_field(events0,  jmssf(IOV, jmrsf(IOV,corr_jets, var = "down")) , "FatJet")
+                elif jet_syst == "JMSUp":
+                    events = ak.with_field(events0,  jmssf(IOV, jmrsf(IOV,corr_jets), var = "up") , "FatJet")
+                elif jet_syst == "JMSDown":
+                    events = ak.with_field(events0,  jmssf(IOV, jmrsf(IOV,corr_jets), var = "down") , "FatJet")
                 
                 elif (jet_syst[-2:]=="Up" and "JES" in jet_syst):
                     #print(jet_syst)
                     field = jet_syst[:-2]
                     #print(field)
-                    events = ak.with_field(events0, corr_jets[field].up, "FatJet")
+                    events = ak.with_field(events0, jmssf(IOV, jmrsf(IOV,corr_jets[field].up)), "FatJet")
                 elif (jet_syst[-4:]=="Down" and "JES" in jet_syst):
                     field = jet_syst[:-4]
-                    events = ak.with_field(events0, corr_jets[field].down, "FatJet")
+                    events = ak.with_field(events0, jmssf(IOV, jmrsf(IOV,corr_jets[field].down)), "FatJet")
+                
                 else:
                     print("{} is not considered".format(jet_syst))
+                    
     
                 #####################################
                 ### Remove events with very large gen weights (>2 sigma)
@@ -583,7 +623,7 @@ class QJetMassProcessor(processor.ProcessorABC):
                     #####################################
                     ### Make gen-level Z
                     #####################################
-                    z_gen = get_z_gen_selection(events, sel, self.lepptcuts[0], self.lepptcuts[1], 20, 20)
+                    z_gen = get_z_gen_selection(events, sel, self.lepptcuts[0], self.lepptcuts[1], 26, 26)
                     z_ptcut_gen = ak.where( sel.all("twoGen_leptons") & ~ak.is_none(z_gen),  z_gen.pt > 90., False )
                     z_mcut_gen = ak.where( sel.all("twoGen_leptons") & ~ak.is_none(z_gen),  (z_gen.mass > 71.) & (z_gen.mass < 111), False )
                     sel.add("z_ptcut_gen", z_ptcut_gen)
@@ -679,14 +719,14 @@ class QJetMassProcessor(processor.ProcessorABC):
                                                      dr=groomed_gen_jet[allsel_gen].delta_r(gen_jet[allsel_gen]),
                                                      weight=weights[allsel_gen])
     
-                    misses = sel.all("npv", "kinsel_gen", "toposel_gen" , "misses")
-                    self.hists["misses"].fill(dataset = dataset, ptgen= ak.flatten(events[misses].GenJetAK8.pt),
-                                                      mgen = ak.flatten(events[misses].GenJetAK8.mass),  weight = ak.flatten(ak.broadcast_arrays( weights[misses], events[misses].GenJetAK8.pt)[0] ) )
+#                     misses = sel.all("npv", "kinsel_gen", "toposel_gen" , "misses")
+#                     self.hists["misses"].fill(dataset = dataset, ptgen= ak.flatten(events[misses].GenJetAK8.pt),
+#                                                       mgen = ak.flatten(events[misses].GenJetAK8.mass),  weight = ak.flatten(ak.broadcast_arrays( weights[misses], events[misses].GenJetAK8.pt)[0] ) )
                     del z_jet_dr_gen2, z_pt_asym_sel_gen2, z_pt_asym_gen2, z_pt_frac_gen2, z_jet_dphi_sel_gen2
                 #####################################
                 ### Make reco-level Z
                 #####################################
-                z_reco = get_z_reco_selection(events, sel, self.lepptcuts[0], self.lepptcuts[1], 20, 20)
+                z_reco = get_z_reco_selection(events, sel, self.lepptcuts[0], self.lepptcuts[1], 26, 26)
                 z_ptcut_reco = z_reco.pt > 90.
                 z_mcut_reco = (z_reco.mass > 71.) & (z_reco.mass < 111.)
                 sel.add("z_ptcut_reco", z_ptcut_reco & (sel.require(twoReco_leptons = True) ))
@@ -725,11 +765,8 @@ class QJetMassProcessor(processor.ProcessorABC):
 
                 ####### MAKE PRESEL PLOTS ######
                 filter_sel = sel.all('npv', 'oneRecoJet')
-                reco_exists = ~ak.is_none(reco_jet)
-                print('reco exists', ak.sum(reco_exists))
-
-
-                
+                reco_exists = ~ak.is_none(reco_jet.mass)
+                print('reco exists', ak.sum(reco_exists))   
                 self.hists['jet_mass_u_presel'].fill(dataset = dataset, ht_bin = ht_bin, mreco = reco_jet[reco_exists].mass, weight = weights[reco_exists])
                 self.hists['jet_mass_g_presel'].fill(dataset = dataset, ht_bin = ht_bin, mreco = reco_jet[reco_exists].msoftdrop, weight = weights[reco_exists])
                 
@@ -760,8 +797,12 @@ class QJetMassProcessor(processor.ProcessorABC):
                     presel_reco = sel.all("npv", "allsel_gen", "kinsel_reco")
                 else:
                     presel_reco = sel.all("npv", "trigsel", "kinsel_reco")
-                allsel_reco = presel_reco & toposel_reco
+                
+                #allsel_reco = presel_reco & toposel_reco
                 sel.add("presel_reco", presel_reco)
+
+                allsel_reco = sel.all('presel_reco', 'toposel_reco' )
+                
                 sel.add("allsel_reco", allsel_reco)
         
                 self.hists["mz_reco"].fill(dataset=dataset, mass=z_reco[presel_reco].mass, 
@@ -808,24 +849,40 @@ class QJetMassProcessor(processor.ProcessorABC):
                 # reco_jet = reco_jet[allsel_reco]
                 #self.hists["ptjet_mjet_u_reco"].fill( dataset=dataset, ptreco=reco_jet.pt, mreco=reco_jet.mass, weight=weights )
                 #self.hists["ptjet_mjet_g_reco"].fill( dataset=dataset, ptreco=reco_jet.pt, mreco=reco_jet.msoftdrop, weight=weights )
-                jet_mass_groomed_sel = reco_jet.msoftdrop > 0 
+                
+                ### modify for groomed
+                jet_mass_groomed_sel = reco_jet.msoftdrop > -10
                 sel.add("jet_mass_groomed_sel", jet_mass_groomed_sel)
                 
                 if self.do_gen:
                     fakes = ak.any(ak.is_none(events.FatJet.matched_gen, axis = -1), axis = -1)
                     sel.add("fakes", fakes)
-                    self.hists["fakes"].fill(dataset = dataset,ptreco = ak.flatten(events[fakes].FatJet.pt), mreco = ak.flatten(events[fakes].FatJet.mass))
+                    
         
                     
                     
                     matched_reco = sel.require(fakes = False)
                     sel.add("matched_reco", matched_reco)
-                
-                    allsel_reco = sel.all("allsel_reco", "matched_reco", "jet_mass_groomed_sel")
-                    sel.add("final selection", allsel_reco)
+
+                    pt200 = reco_jet.pt > 200
+                    sel.add("pt200", pt200)
+                    allsel_reco = sel.all("allsel_reco", "matched_reco", "jet_mass_groomed_sel", 'pt200')
+                    sel.add("final_selection", allsel_reco)
+
+
+                    if jet_syst == 'nominal':
+                        if ak.sum(sel.require(allsel_reco = True, fakes = True, jet_mass_groomed_sel = False))>0:
+                            self.hists["fakes"].fill(dataset = dataset,
+                                                     ptreco = reco_jet[sel.require(allsel_reco = True, fakes = True, jet_mass_groomed_sel = False)].pt,
+                                                     mreco = reco_jet[sel.require(allsel_reco = True, fakes = True, jet_mass_groomed_sel = False)].mass,
+                                                     weight = weights[sel.require(allsel_reco = True, fakes = True, jet_mass_groomed_sel = False)])
+                            
+                            misses = sel.all("npv", "kinsel_gen", "toposel_gen" , "misses", 'kinsel_reco', 'toposel_reco')
+                            self.hists["misses"].fill(dataset = dataset, ptgen= gen_jet[misses].pt,
+                                                      mgen = gen_jet[misses].mass,  weight =  weights[misses] ) 
                 else:
                     allsel_reco = sel.all("allsel_reco", "jet_mass_groomed_sel")
-                    sel.add("final selection", allsel_reco)
+                    sel.add("final_selection", allsel_reco)
     
                 ### jet mass cuts
                 
@@ -833,6 +890,7 @@ class QJetMassProcessor(processor.ProcessorABC):
     
                 
                 ### Cut down arrays after final reco selection
+
                 
                 events = events[allsel_reco]
                 weights = weights[allsel_reco]
@@ -847,6 +905,9 @@ class QJetMassProcessor(processor.ProcessorABC):
                 
                     self.hists['jet_mass_u_postsel'].fill(dataset = dataset, ht_bin = ht_bin, mreco = reco_jet.mass, weight = weights)
                     self.hists['jet_mass_g_postsel'].fill(dataset = dataset, ht_bin = ht_bin, mreco = reco_jet.msoftdrop, weight = weights)
+                # print( "Reco Jet Pt" , reco_jet.pt )
+                # print(" Gen Jet Pt", gen_jet.pt)
+                # print(" Groomed gen Jet Pt", groomed_gen_jet.pt)
                 # print(reco_jet.pt)
                 # final_len = len(reco_jet.pt)
                 # len_array = np.zeros(10)
@@ -888,6 +949,17 @@ class QJetMassProcessor(processor.ProcessorABC):
                             events_ee = events[ee_sel]
                             weights_ee = weights[ee_sel]
                             if len(events_ee) > 0:
+
+
+                                z_reco_ee = z_reco[ee_sel]
+                                reco_jet_ee = reco_jet[ee_sel]
+                                #weights = weights[allsel_reco]
+                                if self.do_gen:
+                                    z_gen_ee = z_gen[ee_sel]
+                                    gen_jet_ee = gen_jet[ee_sel]
+                                    groomed_gen_jet_ee = groomed_gen_jet[ee_sel]
+
+                                
                                 coffea_weights = Weights(size = len(events_ee), storeIndividual = True)
     
                                 coffea_weights.add("init_weight", weights_ee)
@@ -896,6 +968,8 @@ class QJetMassProcessor(processor.ProcessorABC):
                                 coffea_weights.add("q2", events_ee.q2_N, events_ee.q2_U, events_ee.q2_D)
                                 coffea_weights.add("pdf", events_ee.pdf_N, events_ee.pdf_U, events_ee.pdf_D)
                                 coffea_weights.add("prefiring", events_ee.prefiring_N, events_ee.prefiring_U, events_ee.prefiring_D)
+        
+  
                                 
                                 elereco_N = events_ee.elereco_N[:,0]*events_ee.elereco_N[:,1]
                                 elereco_U = events_ee.elereco_U[:,0]*events_ee.elereco_U[:,1]
@@ -908,7 +982,14 @@ class QJetMassProcessor(processor.ProcessorABC):
                                 eleid_D = events_ee.eleid_D[:,0]*events_ee.eleid_D[:,1]
     
                                 coffea_weights.add(name = "eleid", weight = eleid_N, weightUp = eleid_U, weightDown = eleid_D)
-                                
+                                #print('eletrig', events_ee.eletrig_N)
+   
+                                eletrig_N = events_ee.eletrig_N[:,0]
+                                eletrig_U = events_ee.eletrig_U[:,0]
+                                eletrig_D = events_ee.eletrig_D[:,0]
+    
+                                coffea_weights.add(name = "eletrig", weight = eletrig_N, weightUp = eletrig_U, weightDown = eletrig_D)
+
                                 coffea_weights.add(name = "mureco",
                                                    weight = ak.ones_like(events_ee.event, dtype = float), 
                                                    weightUp =  ak.ones_like(events_ee.event, dtype = float),
@@ -937,13 +1018,7 @@ class QJetMassProcessor(processor.ProcessorABC):
                                 
     
                                 
-                                z_reco_ee = z_reco[ee_sel]
-                                reco_jet_ee = reco_jet[ee_sel]
-                                #weights = weights[allsel_reco]
-                                if self.do_gen:
-                                    z_gen_ee = z_gen[ee_sel]
-                                    gen_jet_ee = gen_jet[ee_sel]
-                                    groomed_gen_jet_ee = groomed_gen_jet[ee_sel]
+                                
     
                     
                                 #systematics = [syst for syst in self.systematics if syst not in mm_sys_var_list]
@@ -953,6 +1028,12 @@ class QJetMassProcessor(processor.ProcessorABC):
                                 for syst in self.systematics:
                                     if syst == "nominal":
                                         w = coffea_weights.weight()
+
+                                        
+
+                                        self.hists['m_u_jet_reco_over_gen'].fill(dataset=dataset, ptgen=gen_jet_ee.pt, mgen=gen_jet_ee.mass, frac = reco_jet_ee.mass/gen_jet_ee.mass, weight = w)
+                                        self.hists['m_g_jet_reco_over_gen'].fill(dataset=dataset, ptgen= gen_jet_ee.pt, mgen=groomed_gen_jet_ee.mass, 
+                                                                                 frac=reco_jet_ee.mass/groomed_gen_jet_ee.mass,weight = w)
                                         #w = weights
                                     else:
                                         #print(coffea_weights.variations)
@@ -975,7 +1056,7 @@ class QJetMassProcessor(processor.ProcessorABC):
                                                                            mreco=reco_jet_ee.mass, mgen=gen_jet_ee.mass, systematic = syst,  weight = w )
                             
                                         self.hists["response_matrix_g"].fill( dataset=dataset, 
-                                                                           ptreco=reco_jet_ee.pt, ptgen=gen_jet_ee.pt,
+                                                                           ptreco=reco_jet_ee.pt, ptgen=groomed_gen_jet_ee.pt,
                                                                            mreco=reco_jet_ee.msoftdrop, mgen=groomed_gen_jet_ee.mass, systematic = syst, weight = w )
                                         
                                         self.hists["jk_response_matrix_u"].fill( dataset=dataset, 
@@ -983,7 +1064,7 @@ class QJetMassProcessor(processor.ProcessorABC):
                                                                            mreco=reco_jet_ee.mass, mgen=gen_jet_ee.mass, systematic = syst,  weight = w )
                             
                                         self.hists["jk_response_matrix_g"].fill( dataset=dataset, 
-                                                                           ptreco=reco_jet_ee.pt, ptgen=gen_jet_ee.pt, jk = jk_index,
+                                                                           ptreco=reco_jet_ee.pt, ptgen=groomed_gen_jet_ee.pt, jk = jk_index,
                                                                            mreco=reco_jet_ee.msoftdrop, mgen=groomed_gen_jet_ee.mass, systematic = syst, weight = w )
                                         fill_tunfold_hist_2d(dataset = dataset, 
                                                              hist = self.hists["tunfold_migration_u"], mass_gen = gen_jet_ee.mass, pt_gen = gen_jet_ee.pt, 
@@ -1044,6 +1125,11 @@ class QJetMassProcessor(processor.ProcessorABC):
                                                    weight = ak.ones_like(events_mm.event, dtype = float), 
                                                    weightUp =  ak.ones_like(events_mm.event, dtype = float),
                                                    weightDown =  ak.ones_like(events_mm.event, dtype = float))
+                                
+                                coffea_weights.add(name = "eletrig",
+                                                   weight = ak.ones_like(events_mm.event, dtype = float), 
+                                                   weightUp =  ak.ones_like(events_mm.event, dtype = float),
+                                                   weightDown =  ak.ones_like(events_mm.event, dtype = float))
       
                                 del mureco_N, mureco_U, mureco_D, muid_N, muid_U, muid_D, mutrig_N, mutrig_U, mutrig_D
     
@@ -1066,6 +1152,9 @@ class QJetMassProcessor(processor.ProcessorABC):
                                     if syst == "nominal":
                                         w = coffea_weights.weight()
                                         #w = weights
+                                        self.hists['m_u_jet_reco_over_gen'].fill(dataset=dataset, ptgen=gen_jet_mm.pt, mgen=gen_jet_mm.mass, frac = reco_jet_mm.mass/gen_jet_mm.mass, weight = w)
+                                        self.hists['m_g_jet_reco_over_gen'].fill(dataset=dataset, ptgen= gen_jet_mm.pt, mgen=groomed_gen_jet_mm.mass, 
+                                                                                 frac=reco_jet_mm.mass/groomed_gen_jet_mm.mass,weight = w)
                                     else:
                                         #print(coffea_weights.variations)
                                         w = coffea_weights.weight(modifier = syst)
@@ -1085,11 +1174,11 @@ class QJetMassProcessor(processor.ProcessorABC):
                                                                            mreco=reco_jet_mm.mass, mgen=gen_jet_mm.mass, systematic = syst,  weight = w )
                             
                                         self.hists["response_matrix_g"].fill( dataset=dataset, 
-                                                                           ptreco=reco_jet_mm.pt, ptgen=gen_jet_mm.pt,
+                                                                           ptreco=reco_jet_mm.pt, ptgen=groomed_gen_jet_mm.pt,
                                                                            mreco=reco_jet_mm.msoftdrop, mgen=groomed_gen_jet_mm.mass, systematic = syst, weight = w )
 
                                         self.hists["jk_response_matrix_u"].fill( dataset=dataset, 
-                                                                           ptreco=reco_jet_mm.pt, ptgen=gen_jet_mm.pt,
+                                                                           ptreco=reco_jet_mm.pt, ptgen=groomed_gen_jet_mm.pt,
                                                                            mreco=reco_jet_mm.mass, mgen=gen_jet_mm.mass, systematic = syst, jk = jk_index,  weight = w )
                             
                                         self.hists["jk_response_matrix_g"].fill( dataset=dataset, 
@@ -1138,6 +1227,12 @@ class QJetMassProcessor(processor.ProcessorABC):
     
                                 coffea_weights.add(name = "eleid", weight = eleid_N, weightUp = eleid_U, weightDown = eleid_D)
                                 
+                                eletrig_N = events_ee.eletrig_N[:,0]
+                                eletrig_U = events_ee.eletrig_U[:,0]
+                                eletrig_D = events_ee.eletrig_D[:,0]
+    
+                                coffea_weights.add(name = "eletrig", weight = eletrig_N, weightUp = eletrig_U, weightDown = eletrig_D)
+                                
                                 coffea_weights.add(name = "mureco",
                                                    weight = ak.ones_like(events_ee.event, dtype = float), 
                                                    weightUp =  ak.ones_like(events_ee.event, dtype = float),
@@ -1179,13 +1274,13 @@ class QJetMassProcessor(processor.ProcessorABC):
                                                                            mreco=reco_jet_ee.mass, mgen=gen_jet_ee.mass, systematic = jet_syst,  weight = w )
                             
                                     self.hists["response_matrix_g"].fill( dataset=dataset, 
-                                                                           ptreco=reco_jet_ee.pt, ptgen=gen_jet_ee.pt,
+                                                                           ptreco=reco_jet_ee.pt, ptgen=groomed_gen_jet_ee.pt,
                                                                            mreco=reco_jet_ee.msoftdrop, mgen=groomed_gen_jet_ee.mass, systematic = jet_syst, weight = w )
                                     fill_tunfold_hist_2d(dataset = dataset, 
                                                              hist = self.hists["tunfold_migration_u"], mass_gen = gen_jet_ee.mass, pt_gen = gen_jet_ee.pt, 
                                                              mass_reco = reco_jet_ee.mass, pt_reco = reco_jet_ee.pt, systematic = jet_syst, weight = w)
                                     fill_tunfold_hist_2d(dataset = dataset, 
-                                                             hist = self.hists["tunfold_migration_g"], mass_gen = groomed_gen_jet_ee.mass, pt_gen = gen_jet_ee.pt, 
+                                                             hist = self.hists["tunfold_migration_g"], mass_gen = groomed_gen_jet_ee.mass, pt_gen = groomed_gen_jet_ee.pt, 
                                                              mass_reco = reco_jet_ee.msoftdrop, pt_reco = reco_jet_ee.pt, systematic = jet_syst, weight = w)
                                 del weights_ee, z_reco_ee, reco_jet_ee
                                 if self.do_gen:
@@ -1232,6 +1327,10 @@ class QJetMassProcessor(processor.ProcessorABC):
                                                    weight = ak.ones_like(events_mm.event, dtype = float), 
                                                    weightUp =  ak.ones_like(events_mm.event, dtype = float),
                                                    weightDown =  ak.ones_like(events_mm.event, dtype = float))
+                                coffea_weights.add(name = "eletrig",
+                                                   weight = ak.ones_like(events_mm.event, dtype = float), 
+                                                   weightUp =  ak.ones_like(events_mm.event, dtype = float),
+                                                   weightDown =  ak.ones_like(events_mm.event, dtype = float))
       
                                 del mureco_N, mureco_U, mureco_D, muid_N, muid_U, muid_D, mutrig_N, mutrig_U, mutrig_D
     
@@ -1267,7 +1366,7 @@ class QJetMassProcessor(processor.ProcessorABC):
                                                                        mreco=reco_jet_mm.mass, mgen=gen_jet_mm.mass, systematic = jet_syst,  weight = w )
                         
                                     self.hists["response_matrix_g"].fill( dataset=dataset, 
-                                                                       ptreco=reco_jet_mm.pt, ptgen=gen_jet_mm.pt,
+                                                                       ptreco=reco_jet_mm.pt, ptgen=groomed_gen_jet_mm.pt,
                                                                        mreco=reco_jet_mm.msoftdrop, mgen=groomed_gen_jet_mm.mass, systematic = jet_syst, weight = w )
                                     fill_tunfold_hist_2d(dataset = dataset, 
                                                              hist = self.hists["tunfold_migration_u"], mass_gen = gen_jet_mm.mass, pt_gen = gen_jet_mm.pt, 

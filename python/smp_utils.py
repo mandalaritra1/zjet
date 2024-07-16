@@ -19,18 +19,28 @@ class util_constants:
 
 
 class tunfold_binning:
-    def __init__(self, mbins, ptbins, flow1, flow2):
+    def __init__(self, mbins, ptbins, uflow1,oflow1, uflow2,  oflow2):
         self.mbins = mbins
         self.ptbins = ptbins
         self.nmbins = len(mbins) - 1
         self.nptbins = len(ptbins) - 1
-        self.flow1 = flow1
-        self.flow2 = flow2
-        if flow1:
+        self.uflow1 = uflow1
+        self.uflow2 = uflow2
+
+        self.oflow1 = oflow1
+        self.oflow2 = oflow2
+        
+        if (uflow1 & oflow1) :
             self.nmbins += 2
-        if flow2:
+        elif (uflow1 | oflow1):
+            self.nmbins += 1
+
+        if (uflow2 & oflow2):
             self.nptbins += 2 
+        elif (uflow2 | oflow2):
+            self.nptbins += 1
         self.total_nbin = self.nmbins * self.nptbins
+        
     def getGlobalBinNumber(self, mass, pt):
         mbin_number = np.digitize(mass, self.mbins )
         ptbin_number = np.digitize(pt, self.ptbins )
@@ -40,14 +50,23 @@ class tunfold_binning:
         # print("ptbin number: ", ptbin_number)
         
         # print("total bin number: ", self.total_nbin)
-        if self.flow1 == False and self.flow2 == False:                
+        
+        if self.uflow1 == False and self.oflow1 == False and self.uflow2 == True and self.oflow2 == False:               
+            #globB = ak.where( (mbin_number == 0) | (ptbin_number == 0) , 0, ak.where((mbin_number == self.nmbins+1) | (ptbin_number == self.nptbins+1), self.total_nbin, (ptbin_number -1)*self.nmbins + mbin_number) )
+            globB =  globB = ak.where( (mbin_number == 0), -1, ak.where( (mbin_number == self.nmbins+1) | (ptbin_number == self.nptbins+1), self.total_nbin, (ptbin_number )*self.nmbins + mbin_number ))
+        
+        if self.uflow1 == True and self.oflow1 == False and self.uflow2 == True and self.oflow2 == False:               
+            #globB = ak.where( (mbin_number == 0) | (ptbin_number == 0) , 0, ak.where((mbin_number == self.nmbins+1) | (ptbin_number == self.nptbins+1), self.total_nbin, (ptbin_number -1)*self.nmbins + mbin_number) )
+            globB = ak.where( (mbin_number == self.nmbins+1) | (ptbin_number == self.nptbins+1), self.total_nbin, (ptbin_number )*self.nmbins + mbin_number + 1)
+        
+        if self.uflow1 == False and self.oflow1 == False and self.uflow2 == False and self.oflow2 == False:               
             globB = ak.where( (mbin_number == 0) | (ptbin_number == 0) , 0, ak.where((mbin_number == self.nmbins+1) | (ptbin_number == self.nptbins+1), self.total_nbin, (ptbin_number -1)*self.nmbins + mbin_number) )
 
                 
-        if self.flow1 == True and self.flow2 == False:
+        if self.uflow1 == True and self.oflow1 == True and self.uflow2 == False and self.oflow2 == False:
             globB = ak.where( ptbin_number == 0, 0, ak.where(ptbin_number == self.nptbins+1, self.total_nbin,(ptbin_number -1)*self.nmbins + mbin_number + 1 ) )
                 
-        if self.flow1 == True and self.flow2 == True:
+        if self.uflow1 == True and self.uflow2 == True and self.oflow1 == True and self.oflow2 == True:
             globB = (ptbin_number )*self.nmbins + mbin_number + 1
             
         return globB
@@ -59,23 +78,23 @@ class util_binning :
     def __init__(self):
         #self.ptreco_axis = hist.axis.Variable([200,260,350,460,550,650,760,13000], name="ptreco", label=r"p_{T,RECO} (GeV)")   
         
-        self.mgen_axis = hist.axis.Variable([0, 30, 40, 60, 80, 100, 13000], name="mgen", label=r"Mass (GeV)")
-        self.mreco_axis = hist.axis.Variable( [0.000e+00, 7.500e+00, 1.500e+01, 2.250e+01, 3.000e+01, 3.250e+01,
-       3.500e+01, 3.750e+01, 4.000e+01, 4.500e+01, 5.000e+01, 5.500e+01,
-       6.000e+01, 6.500e+01, 7.000e+01, 7.500e+01, 8.000e+01, 8.500e+01,
-       9.000e+01, 9.500e+01, 1.000e+02, 13000] , name="mreco", label=r"m_{RECO} (GeV)")
+        self.mgen_axis = hist.axis.Variable([0, 10, 20, 40, 60, 80, 100, 13000], name="mgen", label=r"Mass (GeV)")
+        self.mreco_axis = hist.axis.Variable([0, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 13000] , name="mreco", label=r"m_{RECO} (GeV)")
+
+        #self.mgen_axis = hist.axis.Variable([0, 1, 5, 10, 20, 40, 60, 80, 100, 13000], name="mgen", label=r"Mass (GeV)")
+        #self.mreco_axis = hist.axis.Variable([0, 0.5, 1, 2.5, 5, 7.5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 13000] , name="mreco", label=r"m_{RECO} (GeV)")
         #self.ptgen_axis = hist.axis.Variable([200,260,350,460,550,650,760,13000], name="ptgen", label=r"p_{T,RECO} (GeV)")   
 
-        self.ptgen_axis = hist.axis.Variable([140, 200, 260, 350, 460, 13000], name="ptgen", label=r"p_{T,GEN} (GeV)")  
-        self.ptreco_axis = hist.axis.Variable([140, 200, 260, 350, 460, 13000], name="ptreco", label=r"p_{T,RECO} (GeV)")
+        #self.ptgen_axis = hist.axis.Variable([140, 200, 260, 330, 408, 13000], name="ptgen", label=r"p_{T,GEN} (GeV)")  
+        #self.ptreco_axis = hist.axis.Variable([140, 200, 260, 330, 408, 13000], name="ptreco", label=r"p_{T,RECO} (GeV)")
 
         
-        # self.ptgen_axis = hist.axis.Variable([ 140,  200.,   260.,   350.,   460., 13000.], name="ptgen", label=r"p_{T,GEN} (GeV)")  
-        # self.ptreco_axis = hist.axis.Variable([ 140, 200.,   260.,   350.,   460., 13000.], name="ptreco", label=r"p_{T,RECO} (GeV)")
+        self.ptgen_axis = hist.axis.Variable([ 140,  200.,   260.,   350.,   460., 13000.], name="ptgen", label=r"p_{T,GEN} (GeV)")  
+        self.ptreco_axis = hist.axis.Variable([ 140, 200.,   260.,   350.,   460., 13000.], name="ptreco", label=r"p_{T,RECO} (GeV)")
         #self.mgen_axis = hist.axis.Variable( [0,2.5,5,7.5,10,15,20,30,40,50,60,70,80,90,100,125,150,175,200,225,250,275,300,325,350,1000], name="mgen", label=r"Mass [GeV]")
         
-        self.gen_binning = tunfold_binning( self.mgen_axis.edges, self.ptgen_axis.edges, True, False )
-        self.reco_binning = tunfold_binning( self.mreco_axis.edges, self.ptreco_axis.edges, True, False )
+        self.gen_binning = tunfold_binning( self.mgen_axis.edges, self.ptgen_axis.edges, False, False, False, False )
+        self.reco_binning = tunfold_binning( self.mreco_axis.edges, self.ptreco_axis.edges, False, False, False, False )
         
         self.gen_axis = hist.axis.Regular(self.gen_binning.total_nbin, 0, self.gen_binning.total_nbin, name = "bin_gen", label = "Generator")
         self.reco_axis =  hist.axis.Regular(self.reco_binning.total_nbin, 0, self.reco_binning.total_nbin, name = "bin_reco", label = "Detector")
