@@ -20,7 +20,9 @@ from python.response_maker_nanov9_lib import *
 
 
 
-def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = "root://xcache/", skimfilename=None, eras_mc = None, do_syst = False , dask = False, do_jk = False, do_herwig = False, fname_out = None, ): 
+def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = "root://xcache/",
+                          skimfilename=None, eras_mc = None, do_syst = False , dask = False, do_jk = False,
+                          do_herwig = False, fname_out = None, syst_list = None, jet_syst_list = None ): 
 
 
     if do_jk == True:
@@ -38,7 +40,7 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
     
     
     if not testing: 
-        nworkers = 1
+        nworkers = 4
         if do_syst or do_jk:
             chunksize = 100000
         else:
@@ -49,7 +51,7 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
         maxchunks = None
     else:
         client = None
-        nworkers = 1
+        nworkers = 4
         if do_gen: 
             chunksize = 10000
         else:
@@ -61,7 +63,7 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
     if not testing: 
         
         if do_gen and (not do_herwig):
-
+            print("Running over PYTHIA MC")
             dy_mc_filestr = "DYJetsToLL_M-50_HT_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8_%s_files.txt"
 
             for era in eras_mc: 
@@ -69,7 +71,8 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
                 with open(filename) as f:
                     dy_mc_files = [prependstr + i.rstrip() for i in f.readlines() if i[0] != "#"  ] 
                     fileset[era] = dy_mc_files
-        if do_gen and  do_herwig:
+        elif do_gen and do_herwig:
+            print("Running over Herwig MC")
             dy_mc_filestr = "DYJetsToLL_M-50_TuneCH3_13TeV-madgraphMLM-herwig7_%s.txt"
 
             for era in eras_mc: 
@@ -78,6 +81,7 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
                     dy_mc_files = [prependstr + i.rstrip() for i in f.readlines() if i[0] != "#"  ] 
                     fileset[era] = dy_mc_files
         else: 
+            print("Running over Data")
             datasets_data = [
                 'SingleElectron_UL2016APV',
                 'SingleElectron_UL2016',
@@ -100,7 +104,7 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
                 filename = filedir+"subset2016mc.txt"
                 #fileset["UL2018"] = [prependstr+'/store/mc/RunIISummer20UL18NanoAODv9/DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/270000/42C39ABF-7352-5547-A226-E3FA9DD0E72B.root']
                 with open(filename) as f:
-                    fileset["UL16NanoAODAPVv9"] = [prependstr + i.rstrip() for i in f.readlines() if i[0] != "#" ]
+                    fileset["UL18NanoAODv9"] = [prependstr + i.rstrip() for i in f.readlines() if i[0] != "#" ]
             else:    
                 fileset["UL16NanoAODv9"] = [prependstr + "/store/mc/RunIISummer20UL16NanoAODv9/DYJetsToLL_M-50_TuneCH3_13TeV-madgraphMLM-herwig7/NANOAODSIM/20UL16JMENano_HerwigJetPartonBugFix_106X_mcRun2_asymptotic_v17-v1/40000/6C26A4DE-8CED-894A-87CC-595EDC0D694D.root"]
         else: 
@@ -148,7 +152,8 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
     output = run(
         fileset,
         "Events",
-        processor_instance=QJetMassProcessor(do_gen=do_gen, skimfilename=skimfilename, do_syst = do_syst, do_jk = do_jk),
+        processor_instance=QJetMassProcessor(do_gen=do_gen, skimfilename=skimfilename, do_syst = do_syst, 
+                                             do_jk = do_jk, syst_list = syst_list, jet_syst_list = jet_syst_list ),
     )
 
     print("Done running")

@@ -38,21 +38,36 @@ lumi = {'2018' : 59740,
        }
 
 numentries = {
-    'UL16NanoAODv9':27417103,
-    'UL16NanoAODAPVv9':28870266,
+    'UL16NanoAODv9': 56287369,
+    #'UL16NanoAODv9':27417103,
+    #'UL16NanoAODAPVv9':28870266,
     'UL17NanoAODv9': 59243606,
     'UL18NanoAODv9': 84844279 ,
     
 }
 
-def getXSweight(dataset, IOV):
+numentries_herwig = {
+    'UL16NanoAODv9': 59608360,
+    # 'UL16NanoAODv9':30069348,
+    # 'UL16NanoAODAPVv9':29539012,
+    'UL17NanoAODv9': 29578468,
+    'UL18NanoAODv9': 29382595 ,
+    
+}
+
+def getXSweight(dataset, IOV, herwig = False):
     z_xs = 6077.22
     if IOV=='2016APV' or IOV=='2016':
         lum_val = lumi['2016']
     else:
         lum_val = lumi[IOV]
-    
-    weight  = (lum_val*6077.22)/numentries[dataset]
+    if dataset == 'UL16NanoAODAPVv9': dataset = 'UL16NanoAODv9'
+    if not herwig:
+        print("Using PYTHIA")
+        weight  = (lum_val*6077.22)/numentries[dataset]
+    else:
+        print("Using Herwig")
+        weight  = (lum_val*6077.22)/numentries_herwig[dataset]
     return weight
 
 def GetJetCorrections(FatJets, events, era, IOV, isData=False, uncertainties = None):
@@ -795,9 +810,9 @@ def GetQ2weights(df, var="nominal"):
 def jmssf(IOV, FatJet,  var = ''):
     jmsSF = {
 
-        "2016APV":{"sf": 1.00, "sfup": 1.0794, "sfdown": 0.9906}, 
+        "2016APV":{"sf": 1.00, "sfup": 1.0094, "sfdown": 0.9906}, 
 
-        "2016"   :{"sf": 1.00, "sfup": 1.0794, "sfdown": 0.9906}, 
+        "2016"   :{"sf": 1.00, "sfup": 1.0094, "sfdown": 0.9906}, 
 
         "2017"   :{"sf": 0.982, "sfup": 0.986, "sfdown": 0.978},
 
