@@ -1,7 +1,7 @@
 
 # Differential Jet Mass Analysis for Z+Jets Events
 
-This script (`run.py`) performs a differential jet mass analysis for Z+Jets events with NanoAODv9, using various options for MC generation, systematic variations, and optional Dask support.
+This script (`run.py`) performs a differential jet mass analysis for Z+Jets events with NanoAODv9.
 
 ## Requirements
 
@@ -30,10 +30,10 @@ python run.py [options]
 | Option             | Description                                                                                               | Required | Default              |
 |--------------------|-----------------------------------------------------------------------------------------------------------|----------|----------------------|
 | `-t`, `--test`     | Run in test mode with minimal number of events                                                            | No       | `False`              |
-| `-mc`, `--do_gen`  | Generate MC data (Boolean).                                                                               | No       | `False`              |
+| `-mc`, `--do_gen`  | Run over MC. (PYTHIA or HERWIG)                                                                              | No       | `False`              |
 | `--dask`           | Enable Dask, otherwise runs locally recommended when running over full dataset.                           | No       | `False`              |
-| `-s`, `--systematic` | Systematic mode: <br> **1** - No systematics <br> **2** - Minimal jet systematics <br> **3** - All systematics | Yes      | N/A                  |
-| `--herwig`         | Use Herwig for MC generation (Boolean).                                                                   | No       | `False`              |
+| `-s`, `--systematic` | Systematic mode: <br> **1** - No systematics <br> **2** - Minimal jet systematics <br> **3** - All systematics | Yes      | `1`                 |
+| `--herwig`         | Use Herwig for MC generation (Boolean). Otherwise uses PYTHIA                                                                  | No       | `False`              |
 | `-o`, `--output`   | Path to save output (Overrides default output naming convention).                                         | No       | Automatically generated based on options |
 
 
