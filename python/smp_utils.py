@@ -42,6 +42,9 @@ class tunfold_binning:
         self.total_nbin = self.nmbins * self.nptbins
         
     def getGlobalBinNumber(self, mass, pt):
+        '''
+        Function to derive Global Bin Number. Inspired by GetGlobalBinNumber in TUnfoldDensity. Currently not used in this code.
+        '''
         mbin_number = np.digitize(mass, self.mbins )
         ptbin_number = np.digitize(pt, self.ptbins )
         
@@ -52,11 +55,11 @@ class tunfold_binning:
         # print("total bin number: ", self.total_nbin)
         
         if self.uflow1 == False and self.oflow1 == False and self.uflow2 == True and self.oflow2 == False:               
-            #globB = ak.where( (mbin_number == 0) | (ptbin_number == 0) , 0, ak.where((mbin_number == self.nmbins+1) | (ptbin_number == self.nptbins+1), self.total_nbin, (ptbin_number -1)*self.nmbins + mbin_number) )
+            
             globB =  globB = ak.where( (mbin_number == 0), -1, ak.where( (mbin_number == self.nmbins+1) | (ptbin_number == self.nptbins+1), self.total_nbin, (ptbin_number )*self.nmbins + mbin_number ))
         
         if self.uflow1 == True and self.oflow1 == False and self.uflow2 == True and self.oflow2 == False:               
-            #globB = ak.where( (mbin_number == 0) | (ptbin_number == 0) , 0, ak.where((mbin_number == self.nmbins+1) | (ptbin_number == self.nptbins+1), self.total_nbin, (ptbin_number -1)*self.nmbins + mbin_number) )
+            
             globB = ak.where( (mbin_number == self.nmbins+1) | (ptbin_number == self.nptbins+1), self.total_nbin, (ptbin_number )*self.nmbins + mbin_number + 1)
         
         if self.uflow1 == False and self.oflow1 == False and self.uflow2 == False and self.oflow2 == False:               
@@ -79,18 +82,28 @@ class util_binning :
         #self.ptreco_axis = hist.axis.Variable([200,260,350,460,550,650,760,13000], name="ptreco", label=r"p_{T,RECO} (GeV)")   
         
         self.mgen_axis = hist.axis.Variable([0, 10, 20, 40, 60, 80, 100, 13000], name="mgen", label=r"Mass (GeV)")
-        self.mreco_axis = hist.axis.Variable([0, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 13000] , name="mreco", label=r"m_{RECO} (GeV)")
 
-        #self.mgen_axis = hist.axis.Variable([0, 1, 5, 10, 20, 40, 60, 80, 100, 13000], name="mgen", label=r"Mass (GeV)")
-        #self.mreco_axis = hist.axis.Variable([0, 0.5, 1, 2.5, 5, 7.5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 13000] , name="mreco", label=r"m_{RECO} (GeV)")
+
+
+        ### Only for making the response matrix for Herwig TOY MC
+        self.mgen_axis = hist.axis.Variable([0, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 13000], name="mgen", label=r"Mass (GeV)")
+
+        
+        self.mreco_axis = hist.axis.Variable([0, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 13000] , name="mreco", label=r"$m_{RECO}$ (GeV)")
+
+        #self.mgen_axis = hist.axis.Variable([0, 10, 20, 40, 60, 80, 100, 120, 140,160, 180, 200, 13000], name="mgen", label=r"Mass (GeV)")
+        #self.mreco_axis = hist.axis.Variable([0, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 1000, 13000] , name="mreco", label=r"$m_{RECO}$ (GeV)")
         #self.ptgen_axis = hist.axis.Variable([200,260,350,460,550,650,760,13000], name="ptgen", label=r"p_{T,RECO} (GeV)")   
 
         #self.ptgen_axis = hist.axis.Variable([140, 200, 260, 330, 408, 13000], name="ptgen", label=r"p_{T,GEN} (GeV)")  
         #self.ptreco_axis = hist.axis.Variable([140, 200, 260, 330, 408, 13000], name="ptreco", label=r"p_{T,RECO} (GeV)")
 
         
-        self.ptgen_axis = hist.axis.Variable([ 140,  200.,   260.,   350.,   460., 13000.], name="ptgen", label=r"p_{T,GEN} (GeV)")  
-        self.ptreco_axis = hist.axis.Variable([ 140, 200.,   260.,   350.,   460., 13000.], name="ptreco", label=r"p_{T,RECO} (GeV)")
+        self.ptgen_axis = hist.axis.Variable([  200.,   260.,   350.,   460., 13000.], name="ptgen", label=r"$p_{T,GEN}$ (GeV)")  
+
+        self.ptgen_axis_fine = hist.axis.Variable([  200., 210,  220, 230, 240, 260., 280, 300, 320, 340,  350., 370, 390, 410, 430, 450, 500, 550, 600, 650, 700, 800, 900, 1000, 13000.], name="ptgen_fine", label=r"$p_{T,GEN}$ (GeV)")  
+        
+        self.ptreco_axis = hist.axis.Variable([ 200.,   260.,   350.,   460., 13000.], name="ptreco", label=r"$p_{T,RECO}$ (GeV)")
         #self.mgen_axis = hist.axis.Variable( [0,2.5,5,7.5,10,15,20,30,40,50,60,70,80,90,100,125,150,175,200,225,250,275,300,325,350,1000], name="mgen", label=r"Mass [GeV]")
         
         self.gen_binning = tunfold_binning( self.mgen_axis.edges, self.ptgen_axis.edges, False, False, False, False )
@@ -106,10 +119,13 @@ class util_binning :
         self.mass_axis = hist.axis.Regular(100, 0, 1000, name="mass", label=r"$m$ [GeV]")
         self.zmass_axis = hist.axis.Regular(100, 80, 100, name="mass", label=r"$m$ [GeV]")
         self.pt_axis = hist.axis.Regular(150, 0, 1500, name="pt", label=r"$p_{T}$ [GeV]")                
-        self.frac_axis = hist.axis.Regular(150, 0, 2.0, name="frac", label=r"Fraction")                
+        self.frac_axis = hist.axis.Regular(200, 0, 3.0, name="frac", label=r"Fraction")                
         self.dr_axis = hist.axis.Regular(150, 0, 6.0, name="dr", label=r"$\Delta R$")
         self.dr_fine_axis = hist.axis.Regular(150, 0, 1.5, name="dr", label=r"$\Delta R$")
         self.dphi_axis = hist.axis.Regular(150, -2*np.pi, 2*np.pi, name="dphi", label=r"$\Delta \phi$")
+        self.eta_axis = hist.axis.Regular(20, -5, 5, name="eta", label=r"$ \eta$")
+        self.phi_axis = hist.axis.Regular(40, -5, 5, name="phi", label=r"$ \phi$")
+        self.ptfine_axis = hist.axis.Regular(20, 200, 500, name="pt", label=r"p_{T,RECO} (GeV)")
         self.jackknife_axis = hist.axis.IntCategory([], growth = True, name = 'jk', label = "Jackknife categories" )
         
         self.syst_axis=hist.axis.StrCategory([],growth = True, name = "systematic", label = "Systematic Uncertainty")
