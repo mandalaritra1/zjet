@@ -969,7 +969,7 @@ class QJetMassProcessor(processor.ProcessorABC):
                                                       mgen = groomed_gen_jet[misses].mass,  weight =  weights[misses] ) 
                 else:
                     allsel_reco = sel.all("allsel_reco", "jet_mass_groomed_sel")
-                    sel.add("final_selection", allsel_reco
+                    sel.add("final_selection", allsel_reco)
                 
                 
     
