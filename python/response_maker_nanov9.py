@@ -51,12 +51,12 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
         maxchunks = None
     else:
         client = None
-        nworkers = 4
+        nworkers = 1
         if do_gen: 
-            chunksize = 10000
+            chunksize = 1000
         else:
             chunksize=100000
-        maxchunks = 4
+        maxchunks = 1
 
     print("Chunk Size ", chunksize)
     fileset = {}
@@ -65,6 +65,7 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
         if do_gen and (not do_herwig):
             print("Running over PYTHIA MC")
             dy_mc_filestr = "DYJetsToLL_M-50_HT_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8_%s_files.txt"
+            #dy_mc_filestr = "pythia_%s.txt"
 
             for era in eras_mc: 
                 filename = filedir + dy_mc_filestr % (era)
@@ -102,10 +103,11 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
         if do_gen :
             if not do_herwig:
                 filename = filedir+"subset2016mc.txt"
-                #fileset["UL2018"] = [prependstr+'/store/mc/RunIISummer20UL18NanoAODv9/DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/270000/42C39ABF-7352-5547-A226-E3FA9DD0E72B.root']
+                #fileset["UL2018"] = [prependstr+'/store/mc/RunIISummer20UL18NanoAODv9/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v2/230000/00EA9563-5449-D24E-9566-98AE8E2A61AE.root']
                 with open(filename) as f:
                     fileset["UL18NanoAODv9"] = [prependstr + i.rstrip() for i in f.readlines() if i[0] != "#" ]
-            else:    
+            else:
+                print("Doing Herwig Test")
                 fileset["UL16NanoAODv9"] = [prependstr + "/store/mc/RunIISummer20UL16NanoAODv9/DYJetsToLL_M-50_TuneCH3_13TeV-madgraphMLM-herwig7/NANOAODSIM/20UL16JMENano_HerwigJetPartonBugFix_106X_mcRun2_asymptotic_v17-v1/40000/6C26A4DE-8CED-894A-87CC-595EDC0D694D.root"]
         else: 
             fileset["UL2018"] = [prependstr + "/store/data/Run2018A/SingleMuon/NANOAOD/UL2018_MiniAODv2_NanoAODv9_GT36-v1/2820000/FF8A3CD2-3F51-7A43-B56C-7F7B7B3158E3.root"]
@@ -123,10 +125,14 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
         )
     else: 
         run = processor.Runner(
-            executor = processor.DaskExecutor(client=client, retries=12, status=True),
+            executor = processor.DaskExecutor(client=client, 
+                                              retries=5, 
+                                              #treereduction=10, 
+                                              status=True),
             schema=NanoAODSchema,
             chunksize=chunksize,
             maxchunks=maxchunks,
+            
             skipbadfiles=True
         )
 

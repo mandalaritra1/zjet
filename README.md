@@ -32,7 +32,7 @@ python run.py [options]
    python run.py --test -s 1
    ```
 
-2. **Generate MC Data with Minimal Jet Systematics and Default Output:**
+2. **Run with MC with Minimal Jet Systematics and Default Output:**
    ```bash
    python run.py -mc -s 2
    ```

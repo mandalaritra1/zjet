@@ -28,7 +28,7 @@ import hist
 from coffea.lookup_tools.dense_lookup import dense_lookup
 import os
 
-
+import pickle
 
 
 
@@ -46,14 +46,48 @@ numentries = {
     
 }
 
+
+
 numentries_herwig = {
     'UL16NanoAODv9': 59608360,
-    # 'UL16NanoAODv9':30069348,
-    # 'UL16NanoAODAPVv9':29539012,
+    #'UL16NanoAODv9':30069348,
+    #'UL16NanoAODAPVv9':29539012,
     'UL17NanoAODv9': 29578468,
     'UL18NanoAODv9': 29382595 ,
     
 }
+
+xs_scale_dic = {'UL16NanoAODv9': {'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 2.991310948858253,
+  'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 7.138925260818154,
+  'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 3.686932374495151,
+  'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 6.214908946937683,
+  'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 8.011787385711257,
+  'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.978752909327263,
+  'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 14.617404276755694},
+ 'UL17NanoAODv9': {'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.1030609511138065,
+  'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.9610666847447815,
+  'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 6.994267753016897,
+  'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.464222685936051,
+  'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 6.0985857085643485,
+  'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 12.484619059260753,
+  'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 2.5996094839386332},
+ 'UL18NanoAODv9': {'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.737810943377211,
+  'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.336676322857477,
+  'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.729376480238347,
+  'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 10.072142643834628,
+  'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.8339327922549735,
+  'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.372392798310038,
+  'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.038484958833355},
+ 'UL16NanoAODAPVv9': {'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 2.795146012551516,
+  'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 7.673615583818124,
+  'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.088296479338986,
+  'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 7.903701508961329,
+  'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 3.4002966860617256,
+  'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.441725939157714,
+  'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.461335661665623}}
+
+
+### make a check with the number of events of herwig
 
 def getXSweight(dataset, IOV, herwig = False):
     z_xs = 6077.22
@@ -70,6 +104,45 @@ def getXSweight(dataset, IOV, herwig = False):
         weight  = (lum_val*6077.22)/numentries_herwig[dataset]
     return weight
 
+
+def getpTweight(pt, herwig):
+    pt_bins = np.array([140, 200, 260, 350, 460, 13000])
+    #weights = np.array([1.3382529 , 1.01746086, 0.73766062, 0.50567517, 0.50315774]) 
+    if herwig:
+        weights =  np.array([       1, 1.044007  , 0.95259771, 0.84541505, 0.77269404])  ## Herwig
+    else:
+        weights = np.array([       1, 0.92659584 ,1.13264522, 1.46778435, 1.54480244])    ## Pythia
+    corr = dense_lookup(weights,  [pt_bins])
+    return corr(pt)
+
+
+
+def ApplyVetoMap(IOV, jets, mapname='jetvetomap'):
+
+    if IOV=="2016APV":
+        IOV="2016"
+    iov_map = {
+        "2016" : "2016postVFP_UL",
+        "2017" : "2017_UL",
+        "2018" : "2018_UL"}
+    fname = "correctionFiles/POG/JME/"+iov_map[IOV]+"/jetvetomaps.json.gz"
+    hname = {
+        "2016"   : "Summer19UL16_V1",
+        "2017"   : "Summer19UL17_V1",
+        "2018"   : "Summer19UL18_V1"
+    }
+    # print("Len of jets before veto", len(jets))
+    # print("veto file name", fname)
+    evaluator = correctionlib.CorrectionSet.from_file(fname)
+    jetphi = ak.where(jets.phi<3.141592, jets.phi, 3.141592)
+    jetphi = ak.where(jetphi>-3.141592, jetphi, -3.141592)
+    vetoedjets = np.array(evaluator[hname[IOV]].evaluate(mapname, jets.eta, jetphi), dtype = bool)
+    # print("vetoed jets", vetoedjets)
+    # print("Sum of vetoed jets ", ak.sum(vetoedjets), " len of veto jets ", len(vetoedjets))
+    # print("Len of jets AFTER veto", len(jets[~vetoedjets]))
+    return ~vetoedjets
+
+
 def GetJetCorrections(FatJets, events, era, IOV, isData=False, uncertainties = None):
     if uncertainties != None:
         uncertainty_sources = uncertainties
@@ -79,7 +152,6 @@ def GetJetCorrections(FatJets, events, era, IOV, isData=False, uncertainties = N
 "RelativeStatEC","RelativeStatFSR","RelativeStatHF","SinglePionECAL","SinglePionHCAL","TimePtEta"]
     # original code https://gitlab.cern.ch/gagarwal/ttbardileptonic/-/blob/master/jmeCorrections.py
     jer_tag=None
-    print("IOV", IOV)
     if (IOV=='2018'):
         jec_tag="Summer19UL18_V5_MC"
         jec_tag_data={
@@ -243,7 +315,6 @@ def GetJetCorrections_sd(FatJets, events, era, IOV, isData=False, uncertainties 
 "RelativeStatEC","RelativeStatFSR","RelativeStatHF","SinglePionECAL","SinglePionHCAL","TimePtEta"]
     # original code https://gitlab.cern.ch/gagarwal/ttbardileptonic/-/blob/master/jmeCorrections.py
     jer_tag=None
-    print("IOV", IOV)
     if (IOV=='2018'):
         jec_tag="Summer19UL18_V5_MC"
         jec_tag_data={
@@ -402,208 +473,6 @@ def GetJetCorrections_sd(FatJets, events, era, IOV, isData=False, uncertainties 
 
 
 
-
-
-
-
-# def CorrectJetsRun2(IOV, Jets, JetsName="AK4PFchs", leptons_inJet=None):
-#     jer_tag=None
-#     if (IOV=='2018' or IOV == 'Test'):
-#         jec_tag="Summer19UL18_V5_MC"
-#         jec_tag_data={
-#             "RunA": "Summer19UL18_RunA_V5_DATA",
-#             "RunB": "Summer19UL18_RunB_V5_DATA",
-#             "RunC": "Summer19UL18_RunC_V5_DATA",
-#             "RunD": "Summer19UL18_RunD_V5_DATA",
-#         }
-#         jer_tag = "Summer19UL18_JRV2_MC"
-#     elif (IOV=='2017'):
-#         jec_tag="Summer19UL17_V5_MC"
-#         jec_tag_data={
-#             "RunB": "Summer19UL17_RunB_V5_DATA",
-#             "RunC": "Summer19UL17_RunC_V5_DATA",
-#             "RunD": "Summer19UL17_RunD_V5_DATA",
-#             "RunE": "Summer19UL17_RunE_V5_DATA",
-#             "RunF": "Summer19UL17_RunF_V5_DATA",
-#         }
-#         jer_tag = "Summer19UL17_JRV2_MC"
-#     elif (IOV=='2016'):
-#         jec_tag="Summer19UL16_V5_MC"
-#         jec_tag_data={
-#             "RunF": "Summer19UL16_RunFGH_V7_DATA",
-#             "RunG": "Summer19UL16_RunFGH_V7_DATA",
-#             "RunH": "Summer19UL16_RunFGH_V7_DATA",
-#         }
-#         jer_tag = "Summer20UL16_JRV3_MC"
-#     elif (IOV=='2016APV'):
-#         jec_tag="Summer19UL16_V5_MC"
-#         ## HIPM/APV     : B_ver1, B_ver2, C, D, E, F
-#         ## non HIPM/APV : F, G, H
-
-#         jec_tag_data={
-#             "RunB_ver1": "Summer19UL16APV_RunBCD_V7_DATA",
-#             "RunB_ver2": "Summer19UL16APV_RunBCD_V7_DATA",
-#             "RunC": "Summer19UL16APV_RunBCD_V7_DATA",
-#             "RunD": "Summer19UL16APV_RunBCD_V7_DATA",
-#             "RunE": "Summer19UL16APV_RunEF_V7_DATA",
-#             "RunF": "Summer19UL16APV_RunEF_V7_DATA",
-#         }
-#         jer_tag = "Summer20UL16APV_JRV3_MC"
-#     else:
-#         raise ValueError(f"Error: Unknown year \"{IOV}\".")
-    
-#     extract = extractor()
-#     if (isMC):
-#         #For MC
-#         extract.add_weight_sets([
-#             '* * data/JEC/{0}/{0}_L1FastJet_{1}.txt'.format(jec_tag, JetsName),
-#             '* * data/JEC/{0}/{0}_L2Relative_{1}.txt'.format(jec_tag, JetsName),
-#             '* * data/JEC/{0}/{0}_L3Absolute_{1}.txt'.format(jec_tag, JetsName),
-#             '* * data/JEC/{0}/{0}_UncertaintySources_{1}.junc.txt'.format(jec_tag, JetsName),
-#             '* * data/JEC/{0}/{0}_Uncertainty_{1}.junc.txt'.format(jec_tag, JetsName),
-#         ])
-
-#         if jer_tag:
-#             extract.add_weight_sets([
-#             '* * data/JER/{0}/{0}_PtResolution_{1}.jr.txt'.format(jer_tag, JetsName),
-#             '* * data/JER/{0}/{0}_SF_{1}.jersf.txt'.format(jer_tag, JetsName)])
-#     else:       
-#         #For data, make sure we don't duplicate
-#         tags_done = []
-#         for run, tag in jec_tag_data.items():
-#             if not (tag in tags_done):
-#                 extract.add_weight_sets([
-#                 '* * data/JEC/{0}/{0}_L1FastJet_{1}.txt'.format(tag, JetsName),
-#                 '* * data/JEC/{0}/{0}_L2Relative_{1}.txt'.format(tag, JetsName),
-#                 '* * data/JEC/{0}/{0}_L3Absolute_{1}.txt'.format(tag, JetsName),
-#                 '* * data/JEC/{0}/{0}_L2L3Residual_{1}.txt'.format(tag, JetsName),
-#                 ])
-#                 tags_done += [tag]
-                
-#     extract.finalize()
-#     evaluator = extract.make_evaluator()
-    
-#     if (isMC):
-#         jec_names = [
-#             '{0}_L1FastJet_{1}'.format(jec_tag, JetsName),
-#             '{0}_L2Relative_{1}'.format(jec_tag, JetsName),
-#             '{0}_L3Absolute_{1}'.format(jec_tag, JetsName),
-#             '{0}_Uncertainty_{1}'.format(jec_tag, JetsName)]
-#         if do_factorized_jec_unc:
-#             for name in dir(evaluator):
-#                #factorized sources
-#                if '{0}_UncertaintySources_{1}'.format(jec_tag, JetsName) in name:
-#                     jec_names.append(name)
-#         if jer_tag: 
-#             jec_names.extend(['{0}_PtResolution_{1}'.format(jer_tag, JetsName),
-#                               '{0}_SF_{1}'.format(jer_tag, JetsName)])
-
-#     else:
-#         jec_names={}
-#         for run, tag in jec_tag_data.items():
-#             jec_names[run] = [
-#                 '{0}_L1FastJet_{1}'.format(tag, JetsName),
-#                 '{0}_L3Absolute_{1}'.format(tag, JetsName),
-#                 '{0}_L2Relative_{1}'.format(tag, JetsName),
-#                 '{0}_L2L3Residual_{1}'.format(tag, JetsName),]
-#     if isMC:
-#         jec_inputs = {name: evaluator[name] for name in jec_names}
-#     else:
-#         jec_inputs = {name: evaluator[name] for name in jec_names[era]}
-    
-    
-    
-    
-#     ## (1) Uncorrecting Jets
-#     CleanedJets = Jets
-#     debug(self.debugMode, "Corrected Jets (Before Cleaning): ", CleanedJets[0].pt)
-#     CleanedJets["rho"] = ak.broadcast_arrays(df.fixedGridRhoFastjetAll, Jets.pt)[0]
-#     CleanedJets["pt_raw"] = (1 - CleanedJets.rawFactor) * CleanedJets.pt
-#     CleanedJets["mass_raw"] = (1 - CleanedJets.rawFactor) * CleanedJets.mass
-#     CleanedJets["pt"] = CleanedJets.pt_raw
-#     CleanedJets["mass"] = CleanedJets.mass_raw
-#     CleanedJets["p4","pt"] = CleanedJets.pt_raw
-#     CleanedJets["p4","mass"] = CleanedJets.mass_raw
-#     if (isMC):
-#         CleanedJets["pt_gen"] = ak.values_astype(ak.fill_none(CleanedJets.matched_gen.pt, 0), np.float32)
-#     debug(self.debugMode, "Raw Jets (Before Cleaning):       ", CleanedJets[0].pt)
-
-#     ## (2) Removing leptons from jets
-
-#     if leptons_inJet != None :
-#         cleaned = (CleanedJets.p4).subtract(leptons_inJet)
-#         CleanedJets["p4","pt"] = cleaned.pt
-#         CleanedJets["p4","eta"] = cleaned.eta
-#         CleanedJets["p4","phi"] = cleaned.phi
-#         CleanedJets["pt"] = cleaned.pt
-#         CleanedJets["eta"] = cleaned.eta
-#         CleanedJets["phi"] = cleaned.phi
-#         CleanedJets["pt_raw"] = cleaned.pt
-    
-#     jec_stack = JECStack(jec_inputs)
-#     name_map = jec_stack.blank_name_map
-#     name_map['JetPt'] = 'pt'
-#     name_map['JetEta'] = 'eta'
-#     name_map['JetPhi'] = 'phi'
-#     name_map['JetMass'] = 'mass'
-#     name_map['Rho'] = 'rho'
-#     name_map['JetA'] = 'area'
-#     name_map['ptGenJet'] = 'pt_gen'
-#     name_map['ptRaw'] = 'pt_raw'
-#     name_map['massRaw'] = 'mass_raw'
-#     name_map['METpt'] = 'pt'
-#     name_map['METphi'] = 'phi'
-#     name_map['UnClusteredEnergyDeltaX'] = 'MetUnclustEnUpDeltaX'
-#     name_map['UnClusteredEnergyDeltaY'] = 'MetUnclustEnUpDeltaY'
-#     if corr_type=='met': return CorrectedMETFactory(name_map)
-#     CleanedJets = CorrectedJetsFactory(name_map, jec_stack).build(CleanedJets, lazy_cache=df.caches[0])    
-#     return CleanedJets
-
-
-
-
-## --------------------------------- MET Filters ------------------------------#
-## Reference: https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#2018_2017_data_and_MC_UL
-
-MET_filters = {'2016APV':["goodVertices",
-                          "globalSuperTightHalo2016Filter",
-                          "HBHENoiseFilter",
-                          "HBHENoiseIsoFilter",
-                          "EcalDeadCellTriggerPrimitiveFilter",
-                          "BadPFMuonFilter",
-                          "BadPFMuonDzFilter",
-                          "eeBadScFilter",
-                          "hfNoisyHitsFilter"],
-               '2016'   :["goodVertices",
-                          "globalSuperTightHalo2016Filter",
-                          "HBHENoiseFilter",
-                          "HBHENoiseIsoFilter",
-                          "EcalDeadCellTriggerPrimitiveFilter",
-                          "BadPFMuonFilter",
-                          "BadPFMuonDzFilter",
-                          "eeBadScFilter",
-                          "hfNoisyHitsFilter"],
-               '2017'   :["goodVertices",
-                          "globalSuperTightHalo2016Filter",
-                          "HBHENoiseFilter",
-                          "HBHENoiseIsoFilter",
-                          "EcalDeadCellTriggerPrimitiveFilter",
-                          "BadPFMuonFilter",
-                          "BadPFMuonDzFilter",
-                          "hfNoisyHitsFilter",
-                          "eeBadScFilter",
-                          "ecalBadCalibFilter"],
-               '2018'   :["goodVertices",
-                          "globalSuperTightHalo2016Filter",
-                          "HBHENoiseFilter",
-                          "HBHENoiseIsoFilter",
-                          "EcalDeadCellTriggerPrimitiveFilter",
-                          "BadPFMuonFilter",
-                          "BadPFMuonDzFilter",
-                          "hfNoisyHitsFilter",
-                          "eeBadScFilter",
-                          "ecalBadCalibFilter"]}
-
 corrlib_namemap = {
     "2016APV":"2016preVFP_UL",
     "2016":"2016postVFP_UL",
@@ -723,32 +592,21 @@ def GetMuonSF(IOV, corrset, abseta, pt, var="sf"):
     return ak.unflatten(sf, ak.num(pt))
 
 
-
 def GetEleTrigEff(IOV, lep0pT, lep0eta, var = ""):
-    ## Most recent presentation avaible at: https://indico.cern.ch/event/1290491/#5-tt-resonances-2l-update
-    eleSF = {
-        #"2016APV":{"sf": 1.035, "sfup": 1.0971, "sfdown": 0.9729},
-        "2016APV":{"sf": 1.034, "sfup": 1.0702934, "sfdown": 0.9977066}, # 3.51%
-        #"2016"   :{"sf": 1.024, "sfup": 1.3424,  "sfdown": 1.01376},
-        "2016"   :{"sf": 1.026, "sfup": 1.0391328,  "sfdown": 1.0128672}, #1.28%
-        #"2017"   :{"sf": 0.983, "sfup": 1.00266, "sfdown": 0.96334},
-        "2017"   :{"sf": 0.982, "sfup": 0.989856, "sfdown": 0.974144}, #0.80%
-        # "2018"   :{"sf": 0.992, "sfup": 1.01184, "sfdown": 0.97216},
-        "2018"   :{"sf": 0.994, "sfup": 1.0105998, "sfdown": 0.9774002}} #1.67%
-    fname = "correctionFiles/eleSF/egammaEffi_EGM2D.root"
-    
-    histobj = uproot.open(fname)['EGamma_SF2D;1'].to_hist()
-    
+    num = ak.num(lep0pT)
+    ceval = correctionlib.CorrectionSet.from_file('correctionFiles/eleSF/egammaEffi_EGM2D.json')
     
     if var=='up':
-        corr = dense_lookup(histobj.values() + histobj.variances()**0.5, [ax.edges for ax in histobj.axes])
-        return corr(lep0eta, lep0pT)
+        wrap_c = ceval["pt_reweight_up"]
+
     if var=='down':
-        corr = dense_lookup(histobj.values() - histobj.variances()**0.5, [ax.edges for ax in histobj.axes])
-        return corr(lep0eta, lep0pT)
+        wrap_c = ceval["pt_reweight_down"]
+
     else:
-        corr = dense_lookup(histobj.values(), [ax.edges for ax in histobj.axes])
-        return corr(lep0eta, lep0pT)
+        wrap_c = ceval["pt_reweight"]
+    print(lep0eta)    
+    sf = wrap_c.evaluate(ak.flatten(lep0eta), ak.flatten(lep0pT))
+    return ak.unflatten(sf, num)
     
 
 def GetPDFweights(df, var="nominal"):
@@ -763,27 +621,7 @@ def GetPDFweights(df, var="nominal"):
     return pdf
 
 def GetQ2weights(df, var="nominal"):
-    ## determines the envelope of the muR/muF up and down variations
-    ## Case 1:
-    ## LHEScaleWeight[0] -> (0.5, 0.5) # (muR, muF)
-    ##               [1] -> (0.5, 1)
-    ##               [2] -> (0.5, 2)
-    ##               [3] -> (1, 0.5)
-    ##               [4] -> (1, 1)
-    ##               [5] -> (1, 2)
-    ##               [6] -> (2, 0.5)
-    ##               [7] -> (2, 1)
-    ##               [8] -> (2, 2)
-                  
-    ## Case 2:
-    ## LHEScaleWeight[0] -> (0.5, 0.5) # (muR, muF)
-    ##               [1] -> (0.5, 1)
-    ##               [2] -> (0.5, 2)
-    ##               [3] -> (1, 0.5)
-    ##               [4] -> (1, 2)
-    ##               [5] -> (2, 0.5)
-    ##               [6] -> (2, 1)
-    ##               [7] -> (2, 2)
+
 
     q2 = ak.ones_like(df.event)
     q2Up = ak.ones_like(df.event)
