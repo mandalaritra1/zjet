@@ -5,7 +5,19 @@ This script (`run.py`) performs a differential jet mass analysis for Z+Jets even
 
 ## Requirements
 
+This script is supposed be run on LPC. Refer to the following steps to setup the environment. 
 
+
+1. Use the following command to login -  `ssh -L localhost:8883:localhost:8883 USERNAME@cmslpc-el9.fnal.gov`
+2. Move to nobackup directory using `cd nobackup`
+3. Running these two commands should create a new file called `shell`
+    ```
+    curl -OL https://raw.githubusercontent.com/CoffeaTeam/lpcjobqueue/main/bootstrap.sh
+    bash bootstrap.sh
+    ```
+4.  Now launch the singularity container using `./shell coffeateam/coffea-dask:0.7.22-py3.10-gf48fa`
+5.  Start the jupyter server `jupyter lab --no-browser --port=8883 --ip 127.0.0.1`. Click on the link to open the jupyter lab interface.
+6.  To run the script, open a terminal in the jupyter interface. 
 
 ## Script Usage
 
@@ -46,4 +58,10 @@ python run.py [options]
    ```bash
    python run.py -s 3 -o custom_output.pkl
    ```
+## Information about the files
+The output is a pickle file and contains a bunch of histogram. For unfolding purposes, access the `Scikit-HEP hist` object by loading the pickle file and then using the key. Examples can be found in `plotsv2.ipynb`.
 
+
+## Unfolding Instructions
+
+Coming soon...
