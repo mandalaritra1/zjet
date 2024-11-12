@@ -81,15 +81,16 @@ class util_binning :
     def __init__(self):
         #self.ptreco_axis = hist.axis.Variable([200,260,350,460,550,650,760,13000], name="ptreco", label=r"p_{T,RECO} (GeV)")   
         
-        self.mgen_axis = hist.axis.Variable([0, 10, 20, 40, 60, 80, 100, 13000], name="mgen", label=r"Mass (GeV)")
-
-
+        #self.mgen_axis = hist.axis.Variable([0, 10, 20, 40, 60, 80, 100, 13000], name="mgen", label=r"Mass (GeV)")
+        self.mgen_axis = hist.axis.Variable([0, 10, 20, 40, 60, 80, 100, 150, 200, 13000], name="mgen", label=r"Mass (GeV)")
+        
+        self.mreco_axis = hist.axis.Variable([0, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 175, 200, 6200, 13000], name="mreco", label=r"$m_{RECO}$ (GeV)")
 
         ### Only for making the response matrix for Herwig TOY MC
-        self.mgen_axis = hist.axis.Variable([0, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 13000], name="mgen", label=r"Mass (GeV)")
+        #self.mgen_axis = hist.axis.Variable([0, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 13000], name="mgen", label=r"Mass (GeV)")
 
         
-        self.mreco_axis = hist.axis.Variable([0, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 13000] , name="mreco", label=r"$m_{RECO}$ (GeV)")
+        #self.mreco_axis = hist.axis.Variable([0, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 13000] , name="mreco", label=r"$m_{RECO}$ (GeV)")
 
         #self.mgen_axis = hist.axis.Variable([0, 10, 20, 40, 60, 80, 100, 120, 140,160, 180, 200, 13000], name="mgen", label=r"Mass (GeV)")
         #self.mreco_axis = hist.axis.Variable([0, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 1000, 13000] , name="mreco", label=r"$m_{RECO}$ (GeV)")
@@ -179,8 +180,10 @@ def get_z_gen_selection( events, selection, ptcut_e, ptcut_m, ptcut_e2=None, ptc
                   (ak.all( np.abs(events.GenDressedLepton.eta) < 2.5, axis=1)) & 
                   (ak.sum(gen_charge, axis=1) == 0)
                  )
-    selection.add("twoGen_leptons",
-                  selection.all("twoGen_ee") | selection.all("twoGen_mm")
+    # selection.add("twoGen_leptons",
+    #               selection.all("twoGen_ee") | selection.all("twoGen_mm")
+    #              )
+    selection.add("twoGen_leptons",selection.all("twoGen_mm")
                  )
     sel = selection.all("twoGen_leptons")
     z_gen = events.GenDressedLepton.sum(axis=1)
@@ -236,9 +239,15 @@ def get_z_reco_selection( events, selection, ptcut_e, ptcut_m, ptcut_e2=None, pt
 
      
     
-    selection.add("twoReco_leptons",
-                  selection.all("twoReco_ee") | selection.all("twoReco_mm")
+    # selection.add("twoReco_leptons",
+    #               selection.all("twoReco_ee") | selection.all("twoReco_mm")
+    #              )
+
+
+    ## remove this part and uncomment above section
+    selection.add("twoReco_leptons",selection.all("twoReco_mm")
                  )
+    
 
     #print("Two leptons cut ", ak.sum(selection.require(twoReco_leptons = True)))
     z_reco = ak.where( selection.all("twoReco_ee"), events.Electron.sum(axis=1), events.Muon.sum(axis=1) )

@@ -42,18 +42,18 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
     if not testing: 
         nworkers = 4
         if do_syst or do_jk:
-            chunksize = 100000
+            chunksize = 500000
         else:
-            chunksize = 200000
+            chunksize = 400000
         maxchunks = None
     elif dask and (client != None):
-        chunksize = 10000
+        chunksize = 100000
         maxchunks = None
     else:
         client = None
         nworkers = 1
         if do_gen: 
-            chunksize = 1000
+            chunksize = 100000
         else:
             chunksize=100000
         maxchunks = 1
@@ -83,29 +83,38 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
                     fileset[era] = dy_mc_files
         else: 
             print("Running over Data")
-            datasets_data = [
-                'SingleElectron_UL2016APV',
-                'SingleElectron_UL2016',
-                'SingleElectron_UL2017',
-                'EGamma_UL2018',
-                'SingleMuon_UL2016APV',
-                'SingleMuon_UL2016',
-                'SingleMuon_UL2017',
-                'SingleMuon_UL2018',
-            ]
 
-            for dataset in datasets_data: 
-                filename = filedir + dataset + '_NanoAODv9_files.txt'
-                with open(filename) as f:
-                    data_files = [prependstr + i.rstrip() for i in f.readlines()  if i[0] != "#" ]
-                    fileset[dataset] = data_files
+            datasets_list = [#['SingleElectron_UL2016','SingleMuon_UL2016'],
+                             ['SingleElectron_UL2016APV','SingleMuon_UL2016APV'],]
+                             #['SingleElectron_UL2017','SingleMuon_UL2017'],
+                             #['EGamma_UL2018','SingleMuon_UL2018']]
+            # datasets_data = [
+            #     'SingleElectron_UL2016APV',
+            #     'SingleElectron_UL2016',
+            #     'SingleElectron_UL2017',
+            #     'EGamma_UL2018',
+            #     'SingleMuon_UL2016APV',
+            #     'SingleMuon_UL2016',
+            #     'SingleMuon_UL2017',
+            #     'SingleMuon_UL2018',
+            # ]
+            
+            fileset_data_list = []
+            for datasets_data in datasets_list: 
+                fileset = {}
+                for dataset in datasets_data: 
+                    filename = filedir + dataset + '_NanoAODv9_files.txt'
+                    with open(filename) as f:
+                        data_files = [prependstr + i.rstrip() for i in f.readlines()  if i[0] != "#" ]
+                        fileset[dataset] = data_files
+                fileset_data_list.append(fileset)
     else: 
         if do_gen :
             if not do_herwig:
                 filename = filedir+"subset2016mc.txt"
                 #fileset["UL2018"] = [prependstr+'/store/mc/RunIISummer20UL18NanoAODv9/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v2/230000/00EA9563-5449-D24E-9566-98AE8E2A61AE.root']
                 with open(filename) as f:
-                    fileset["UL18NanoAODv9"] = [prependstr + i.rstrip() for i in f.readlines() if i[0] != "#" ]
+                    fileset["UL17NanoAODv9"] = [prependstr + i.rstrip() for i in f.readlines() if i[0] != "#" ]
             else:
                 print("Doing Herwig Test")
                 fileset["UL16NanoAODv9"] = [prependstr + "/store/mc/RunIISummer20UL16NanoAODv9/DYJetsToLL_M-50_TuneCH3_13TeV-madgraphMLM-herwig7/NANOAODSIM/20UL16JMENano_HerwigJetPartonBugFix_106X_mcRun2_asymptotic_v17-v1/40000/6C26A4DE-8CED-894A-87CC-595EDC0D694D.root"]
@@ -126,8 +135,8 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
     else: 
         run = processor.Runner(
             executor = processor.DaskExecutor(client=client, 
-                                              retries=5, 
-                                              #treereduction=10, 
+                                              retries=10, 
+                                              treereduction=40, 
                                               status=True),
             schema=NanoAODSchema,
             chunksize=chunksize,
@@ -154,31 +163,50 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
     #             schemaclass=NanoAODSchema,
     #         )
     #     (output, ) = dask.compute(to_compute) 
-        
-    output = run(
-        fileset,
-        "Events",
-        processor_instance=QJetMassProcessor(do_gen=do_gen, skimfilename=skimfilename, do_syst = do_syst, 
-                                             do_jk = do_jk, syst_list = syst_list, jet_syst_list = jet_syst_list ),
-    )
-
-    print("Done running")
-    if fname_out == None:
-        if do_gen:
-            if testing == False:
-                if len(eras_mc)==1:
-                    fname_out = 'qjetmass_zjets_gen_'+eras_mc[0]+'_' +"all_syst" +'.pkl'
+    def run_over_fileset(fileset, fname_out = fname_out):    
+        output = run(
+            fileset,
+            "Events",
+            processor_instance=QJetMassProcessor(do_gen=do_gen, skimfilename=skimfilename, do_syst = do_syst, 
+                                                 do_jk = do_jk, syst_list = syst_list, jet_syst_list = jet_syst_list ),
+        )
+    
+        print("Done running")
+        if fname_out == None:
+            if do_gen:
+                if testing == False:
+                    if len(eras_mc)==1:
+                        fname_out = 'qjetmass_zjets_gen_'+eras_mc[0]+'_' +"all_syst" +'.pkl'
+                    else:
+                        fname_out = 'qjetmass_zjets_gen_'+'_' +"all_syst" +'.pkl'
                 else:
-                    fname_out = 'qjetmass_zjets_gen_'+'_' +"all_syst" +'.pkl'
+                    fname_out = 'test_qjetmass_zjets_gen_'+eras_mc[0]+'_' +"all_syst" +'.pkl'
             else:
-                fname_out = 'test_qjetmass_zjets_gen_'+eras_mc[0]+'_' +"all_syst" +'.pkl'
-        else:
-            if testing == True:
-                fname_out = 'test_qjetmass_zjets_reco.pkl'
-            else:
-                fname_out = 'qjetmass_zjets_reco.pkl'
-        if do_jk:
-            fname_out = 'jackknife_output.pkl'
-    with open(fname_out, "wb") as f:
-        pickle.dump( output, f )
-    print(fname_out ," was created.")
+                if testing == True:
+                    fname_out = 'test_qjetmass_zjets_reco.pkl'
+                else:
+                    fname_out = 'qjetmass_zjets_reco.pkl'
+            if do_jk:
+                fname_out = 'jackknife_output.pkl'
+        with open(fname_out, "wb") as f:
+            pickle.dump( output, f )
+        print(fname_out ," was created.")
+    if testing:
+        run_over_fileset(fileset)
+    elif ((not testing) & (not do_gen)):
+        print("Running over DATA")
+        fname_out_list = ['2016',
+                          '2016APV',]
+                          #'2017', '2018']
+        i_name = 0
+        for fileset in fileset_data_list:
+            print(f"Now using files from {fname_out_list[i_name]}")
+            print(f"Output file will be saved at {'outputs/data_'+fname_out_list[i_name] + '.pkl'}")
+            run_over_fileset(fileset, fname_out = 'outputs/data_'+fname_out_list[i_name] + '.pkl')
+            i_name += 1
+    else:
+        run_over_fileset(fileset)
+            
+        
+        
+    
