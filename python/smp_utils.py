@@ -176,7 +176,7 @@ def get_z_gen_selection( events, selection, ptcut_e, ptcut_m, ptcut_e2=None, ptc
     selection.add("twoGen_mm", 
                   (ak.sum(isGenMuon, axis=1) == 2) & 
                   (ak.all(events.GenDressedLepton.pt > ptcut_m2, axis=1)) & 
-                  (ak.max(events.GenDressedLepton.pt, axis=1) > ptcut_e) &
+                  (ak.max(events.GenDressedLepton.pt, axis=1) > ptcut_m) &
                   (ak.all( np.abs(events.GenDressedLepton.eta) < 2.5, axis=1)) & 
                   (ak.sum(gen_charge, axis=1) == 0)
                  )
@@ -204,9 +204,9 @@ def get_z_reco_selection( events, selection, ptcut_e, ptcut_m, ptcut_e2=None, pt
 
     selection.add("twoReco_ee", 
                   (ak.num(events.Electron) == 2) & 
-                  (ak.all(events.Electron.pt > ptcut_e2, axis=1)) & 
-                  (ak.max(events.Electron.pt, axis=1) > ptcut_e) &
-                  (ak.all( np.abs(events.Electron.eta) < 2.5, axis=1)) & 
+                  (ak.all(events.Electron.pt > ptcut_e2, axis=1)) & ## Subleading electron pt cut
+                  (ak.max(events.Electron.pt, axis=1) > ptcut_e) &## Subleading electron pt cut
+                  (ak.all( np.abs(events.Electron.eta) < 2.5, axis=1)) & ## leading electron pt cut
                   (ak.sum(events.Electron.charge, axis=1) == 0) &
                   (ak.all(events.Electron.pfRelIso03_all < 0.2, axis=1)) &
                   (ak.all(events.Electron.cutBased > 0, axis=1) )
@@ -243,7 +243,7 @@ def get_z_reco_selection( events, selection, ptcut_e, ptcut_m, ptcut_e2=None, pt
                   selection.all("twoReco_ee") | selection.all("twoReco_mm")
                  )
 
-
+    selection.add(" "  )
     ## remove this part and uncomment above section
     # selection.add("twoReco_leptons",selection.all("twoReco_mm")
     #              )
