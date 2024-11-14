@@ -180,11 +180,11 @@ def get_z_gen_selection( events, selection, ptcut_e, ptcut_m, ptcut_e2=None, ptc
                   (ak.all( np.abs(events.GenDressedLepton.eta) < 2.5, axis=1)) & 
                   (ak.sum(gen_charge, axis=1) == 0)
                  )
-    # selection.add("twoGen_leptons",
-    #               selection.all("twoGen_ee") | selection.all("twoGen_mm")
-    #              )
-    selection.add("twoGen_leptons",selection.all("twoGen_mm")
+    selection.add("twoGen_leptons",
+                  selection.all("twoGen_ee") | selection.all("twoGen_mm")
                  )
+    # selection.add("twoGen_leptons",selection.all("twoGen_mm")
+    #              )
     sel = selection.all("twoGen_leptons")
     z_gen = events.GenDressedLepton.sum(axis=1)
     #z_gen = ak.where( sel, ak.sum( events.GenDressedLepton, axis=1), None )
@@ -217,7 +217,7 @@ def get_z_reco_selection( events, selection, ptcut_e, ptcut_m, ptcut_e2=None, pt
     # selection.add("ptcut_e", (ak.max(events.Electron.pt, axis=1) > ptcut_e))
     # selection.add("eta_cut_e", (ak.all( np.abs(events.Electron.eta) < 2.5, axis=1)))
     # selection.add("opposite_signed_ee",(ak.sum(events.Electron.charge, axis=1) == 0))
-    # selection.add("pfRelIso_cut_e", (ak.all(events.Electron.pfRelIso03_all < 0.2, axis=1)))
+    selection.add("pfRelIso_cut_e", (ak.num(events.Muon) == 2) & (ak.all(events.Electron.pfRelIso03_all < 0.2, axis=1)))
     # selection.add("cutBased_e", (ak.all(events.Electron.cutBased > 0, axis=1) ))
     
     selection.add("twoReco_mm", 
@@ -229,24 +229,24 @@ def get_z_reco_selection( events, selection, ptcut_e, ptcut_m, ptcut_e2=None, pt
                   (ak.all(events.Muon.pfRelIso03_all < 0.2, axis=1)) &
                   (ak.all(events.Muon.looseId > 0, axis=1))
     )
-
+    
     # selection.add("number of muon is 2", (ak.num(events.Muon) == 2))
     # selection.add("ptcut_m2", (ak.all(events.Muon.pt > ptcut_m, axis=1)))
     # selection.add("eta_cut_m", (ak.all( np.abs(events.Muon.eta) < 2.5, axis=1)))
     # selection.add("opposite_signed_mm",  (ak.sum(events.Muon.charge, axis=1) == 0))
-    # selection.add("pfRelIso_cut_m", (ak.all(events.Muon.pfRelIso03_all < 0.2, axis=1)))
+    selection.add("pfRelIso_cut_m", (ak.num(events.Muon) == 2) & (ak.all(events.Muon.pfRelIso03_all < 0.2, axis=1)))
     # selection.add("looseId_m", (ak.all(events.Muon.looseId > 0, axis=1)) )
 
      
     
-    # selection.add("twoReco_leptons",
-    #               selection.all("twoReco_ee") | selection.all("twoReco_mm")
-    #              )
+    selection.add("twoReco_leptons",
+                  selection.all("twoReco_ee") | selection.all("twoReco_mm")
+                 )
 
 
     ## remove this part and uncomment above section
-    selection.add("twoReco_leptons",selection.all("twoReco_mm")
-                 )
+    # selection.add("twoReco_leptons",selection.all("twoReco_mm")
+    #              )
     
 
     #print("Two leptons cut ", ak.sum(selection.require(twoReco_leptons = True)))
