@@ -1,0 +1,67 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Environments
+.env
+.venv
+env/
+venv/
+
+# VSCode / IDE config
+.vscode/
+.idea/
+
+# macOS system files
+.DS_Store
+
+# Python virtual environment and pip files
+Pipfile.lock
+poetry.lock
+
+# Logs
+*.log
+
+# Output files
+*.root
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.csv
+*.pkl
+*.json
+
+# Coffea cache or output
+*.coffea
+
+# HTCondor logs and outputs
+*.err
+*.out
+*.log
+*.jid
+*.sub
+
+# SLURM or batch system artifacts
+slurm-*.out
+
+# Test and temp
+*.tmp
+tmp/
+cache/
+output/
+histograms/
+*.hdf5
+
+# Backup files
+*~
+*.bak
+*.swp

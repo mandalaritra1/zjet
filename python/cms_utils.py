@@ -57,37 +57,106 @@ numentries_herwig = {
     
 }
 
-xs_scale_dic = {'UL16NanoAODv9': {'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 2.991310948858253,
-  'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 7.138925260818154,
-  'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 3.686932374495151,
-  'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 6.214908946937683,
-  'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 8.011787385711257,
-  'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.978752909327263,
-  'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 14.617404276755694},
- 'UL17NanoAODv9': {'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.1030609511138065,
-  'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.9610666847447815,
-  'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 6.994267753016897,
-  'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.464222685936051,
-  'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 6.0985857085643485,
-  'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 12.484619059260753,
-  'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 2.5996094839386332},
- 'UL18NanoAODv9': {'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.737810943377211,
-  'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.336676322857477,
-  'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.729376480238347,
-  'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 10.072142643834628,
-  'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.8339327922549735,
-  'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.372392798310038,
-  'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.038484958833355},
- 'UL16NanoAODAPVv9': {'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 2.795146012551516,
-  'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 7.673615583818124,
-  'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.088296479338986,
-  'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 7.903701508961329,
-  'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 3.4002966860617256,
-  'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.441725939157714,
-  'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.461335661665623}}
+# xs_scale_dic = {'UL16NanoAODv9': {'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 2.991310948858253,
+#   'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 7.138925260818154,
+#   'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 3.686932374495151,
+#   'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 6.214908946937683,
+#   'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 8.011787385711257,
+#   'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.978752909327263,
+#   'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 14.617404276755694},
+#  'UL17NanoAODv9': {'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.1030609511138065,
+#   'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.9610666847447815,
+#   'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 6.994267753016897,
+#   'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.464222685936051,
+#   'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 6.0985857085643485,
+#   'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 12.484619059260753,
+#   'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 2.5996094839386332},
+#  'UL18NanoAODv9': {'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.737810943377211,
+#   'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.336676322857477,
+#   'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.729376480238347,
+#   'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 10.072142643834628,
+#   'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.8339327922549735,
+#   'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.372392798310038,
+#   'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.038484958833355},
+#  'UL16NanoAODAPVv9': {'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 2.795146012551516,
+#   'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 7.673615583818124,
+#   'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.088296479338986,
+#   'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 7.903701508961329,
+#   'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 3.4002966860617256,
+#   'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.441725939157714,
+#   'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.461335661665623}}
 
+xs_scale_dic = {'UL16NanoAODv9': {'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 2.653831236744578,
+  'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 6.2720323669270615,
+  'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 6.547528243153286,
+  'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.692815676873025,
+  'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 14.990916178347208,
+  'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.5838080650591735,
+  'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 3.4705425527068288},
+ 'UL18NanoAODv9': {'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.7959177900609005,
+  'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 3.916098407115151,
+  'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.178112345489487,
+  'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 3.2086345959308162,
+  'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 11.7833868531132,
+  'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.26280834409434,
+  'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 2.395462922435564},
+ 'UL17NanoAODv9': {'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 6.417566951131701,
+  'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 7.4767867250074636,
+  'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 3.6950057219923234,
+  'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 7.822441534964256,
+  'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 15.681070780587904,
+  'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 2.501897667451408,
+  'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.476890830612158},
+ 'UL16NanoAODAPVv9': {'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 3.1787840345892517,
+  'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.460241264940778,
+  'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.049886377591695,
+  'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 3.0650221700299394,
+  'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 10.329151798477021,
+  'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.805776864851237,
+  'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 1.906253583723224}}
+
+
+# xs_scale_dic = {'UL16NanoAODv9': 
+#                 {'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 2.3351129875662866,
+#                  'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.336514575086483,
+#                  'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.739503007304571,
+#                  'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.089921006024616,
+#                  'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 12.428580880806116,
+#                  'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.0135305617138854,
+#                  'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 3.1261872747692325},
+#              'UL18NanoAODv9': 
+#                 {'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.336676415238367,
+#                  'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 3.582456913159636,
+#                  'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.791212481880656,
+#                  'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 2.99169296946906,
+#                  'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 9.891904767351907,
+#                  'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.729662102733851,
+#                  'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 2.2472407198086715},
+#               'UL17NanoAODv9':
+#                 {'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 5.409890931218382,
+#               'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 6.334556116796474,
+#               'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 3.24184023106575,
+#               'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 6.098585497019169,
+#               'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 12.451138778365188,
+#               'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 2.237749240756189,
+#               'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.652118617689642},
+#               'UL16NanoAODAPVv9':
+#                 {'DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 2.750533013251786,
+#               'DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.404172633380676,
+#               'DYJetsToLL_M-50_HT-200to400_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 2.765127352066254,
+#               'DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 3.939464794492597,
+#               'DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 7.903701508961329,
+#               'DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 4.075650274433251,
+#               'DYJetsToLL_M-50_HT-100to200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8': 1.7555299713201227}}
 
 ### make a check with the number of events of herwig
+
+def pt_reweight(pt):
+    import awkward as ak
+    a, b , c,  d = [ 5.52615580e+05,  7.94970602e+03,  1.02242903e+04, -5.80564216e-01]
+    edge_value = 0.8816427
+    weight = (a + b * pt) / (1 + c * pt + d * pt**2)
+    return  ak.where( pt>1000,  edge_value, weight)
 
 def getXSweight(dataset, IOV, herwig = False):
     z_xs = 6077.22
@@ -142,29 +211,30 @@ def ApplyVetoMap(IOV, jets, mapname='jetvetomap'):
     # print("Len of jets AFTER veto", len(jets[~vetoedjets]))
     return ~vetoedjets
 
-def GetCorrectedSDMass(events, era, IOV, isData=False, uncertainties=None, useSubjets=True):
-    SubJets=events.SubJet
-    SubGenJetAK8 = events.SubGenJetAK8
-    SubGenJetAK8['p4']= ak.with_name(events.SubGenJetAK8[["pt", "eta", "phi", "mass"]],"PtEtaPhiMLorentzVector")
-    SubJets["p4"] = ak.with_name(events.SubJet[["pt", "eta", "phi", "mass"]],"PtEtaPhiMLorentzVector")
-    SubJets["pt_gen"] = ak.values_astype(ak.fill_none(SubJets.p4.nearest(SubGenJetAK8.p4, threshold=0.4).pt, 0), np.float32)
-    FatJets=events.FatJet
-    FatJets["p4"] = ak.with_name(events.FatJet[["pt", "eta", "phi", "mass"]],"PtEtaPhiMLorentzVector")
-    if useSubjets:
-        corr_subjets = GetJetCorrections(FatJets, events, era, IOV, SubJets = SubJets, isData=isData, uncertainties = uncertainties )
-    else:
-        FatJets["mass"] = FatJets.msoftdrop
-        corr_subjets = GetJetCorrections(FatJets, events, era, IOV, isData=isData, uncertainties = uncertainties )
-    print("N sd index less than 0",  ak.sum(ak.any(events.FatJet.subJetIdx1 < 0, axis = -1) | ak.any(events.FatJet.subJetIdx2 <0, axis = -1)))
-    print("N events with no subjets",  ak.sum(ak.num(SubJets) < 1))
-    print("SD Mass of event with no subjets ", events.FatJet.msoftdrop[(ak.num(SubJets) < 1)] )
-    if useSubjets:
-        newAK8mass = (corr_subjets[events.FatJet.subJetIdx1]+corr_subjets[events.FatJet.subJetIdx2]).mass
-    else:
-        newAK8mass = corr_subjets.mass
+# def GetCorrectedSDMass(events, era, IOV, isData=False, uncertainties=None, useSubjets=True):
+#     SubJets=events.SubJet
+#     SubGenJetAK8 = events.SubGenJetAK8
+#     SubGenJetAK8['p4']= ak.with_name(events.SubGenJetAK8[["pt", "eta", "phi", "mass"]],"PtEtaPhiMLorentzVector")
+#     SubJets["p4"] = ak.with_name(events.SubJet[["pt", "eta", "phi", "mass"]],"PtEtaPhiMLorentzVector")
+#     SubJets["pt_gen"] = ak.values_astype(ak.fill_none(SubJets.p4.nearest(SubGenJetAK8.p4, threshold=0.4).pt, 0), np.float32)
+#     FatJets=events.FatJet
+#     FatJets["p4"] = ak.with_name(events.FatJet[["pt", "eta", "phi", "mass"]],"PtEtaPhiMLorentzVector")
+#     if useSubjets:
+#         corr_subjets = GetJetCorrections(FatJets, events, era, IOV, SubJets = SubJets, isData=isData, uncertainties = uncertainties )
+#     else:
+#         FatJets["mass"] = FatJets.msoftdrop
+#         corr_subjets = GetJetCorrections(FatJets, events, era, IOV, isData=isData, uncertainties = uncertainties )
+#     print("N sd index less than 0",  ak.sum(ak.any(events.FatJet.subJetIdx1 < 0, axis = -1) | ak.any(events.FatJet.subJetIdx2 <0, axis = -1)))
+#     print("N events with no subjets",  ak.sum(ak.num(SubJets) < 1))
+#     print("SD Mass of event with no subjets ", events.FatJet.msoftdrop[(ak.num(SubJets) < 1)] )
+#     if useSubjets:
+#         newAK8mass = (corr_subjets[events.FatJet.subJetIdx1]+corr_subjets[events.FatJet.subJetIdx2]).mass
+#     else:
+#         newAK8mass = corr_subjets.mass
         
-    print("AK8 sdmass before corr ", events.FatJet.msoftdrop, " and after ", newAK8mass)
-    return newAK8mass
+#     print("AK8 sdmass before corr ", events.FatJet.msoftdrop, " and after ", newAK8mass)
+#     return newAK8mass
+
 def GetPUSF(events, IOV):
     # original code https://gitlab.cern.ch/gagarwal/ttbardileptonic/-/blob/master/TTbarDileptonProcessor.py#L38
     ## json files from: https://gitlab.cern.ch/cms-nanoAOD/jsonpog-integration/-/tree/master/POG/LUM
@@ -208,9 +278,9 @@ def GetCorrectedSDMass(events, era, IOV, isData=False, uncertainties=None, useSu
         
     print("AK8 sdmass before corr ", events.FatJet.msoftdrop, " and after ", newAK8mass)
     return newAK8mass
-def GetJetCorrections(FatJets, events, era, IOV, isData=False, uncertainties = None, SubJets=[] ):
+def GetJetCorrections(FatJets, events, era, IOV, isData=False, uncertainties = None, mode = 'AK8' ):
     AK_str = 'AK8PFPuppi'
-    if len(SubJets)>0:
+    if mode == 'AK4':
         AK_str = 'AK4PFPuppi'
 
     print(f"Using TAG {AK_str}")
@@ -224,20 +294,20 @@ def GetJetCorrections(FatJets, events, era, IOV, isData=False, uncertainties = N
     if (IOV=='2018'):
         jec_tag="Summer19UL18_V5_MC"
         jec_tag_data={
-            "Run2018A": "Summer19UL18_RunA_V5_DATA",
-            "Run2018B": "Summer19UL18_RunB_V5_DATA",
-            "Run2018C": "Summer19UL18_RunC_V5_DATA",
-            "Run2018D": "Summer19UL18_RunD_V5_DATA",
+            "Run2018A": "Summer19UL18_RunA_V6_DATA",
+            "Run2018B": "Summer19UL18_RunB_V6_DATA",
+            "Run2018C": "Summer19UL18_RunC_V6_DATA",
+            "Run2018D": "Summer19UL18_RunD_V6_DATA",
         }
         jer_tag = "Summer19UL18_JRV2_MC"
     elif (IOV=='2017'):
         jec_tag="Summer19UL17_V5_MC"
         jec_tag_data={
-            "Run2017B": "Summer19UL17_RunB_V5_DATA",
-            "Run2017C": "Summer19UL17_RunC_V5_DATA",
-            "Run2017D": "Summer19UL17_RunD_V5_DATA",
-            "Run2017E": "Summer19UL17_RunE_V5_DATA",
-            "Run2017F": "Summer19UL17_RunF_V5_DATA",
+            "Run2017B": "Summer19UL17_RunB_V6_DATA",
+            "Run2017C": "Summer19UL17_RunC_V6_DATA",
+            "Run2017D": "Summer19UL17_RunD_V6_DATA",
+            "Run2017E": "Summer19UL17_RunE_V6_DATA",
+            "Run2017F": "Summer19UL17_RunF_V6_DATA",
         }
         jer_tag = "Summer19UL17_JRV3_MC"
     elif (IOV=='2016'):
@@ -279,17 +349,25 @@ def GetJetCorrections(FatJets, events, era, IOV, isData=False, uncertainties = N
         #### Do AK8PUPPI jer files exist??
         if jer_tag:
             # print("JER tag: ", jer_tag)
-            print("File "+'correctionFiles/JER/{0}/{0}_PtResolution_AK8PFPuppi.jr.txt'.format(jer_tag)+" exists: ", os.path.exists('correctionFiles/JER/{0}/{0}_PtResolution_AK4PFPuppi.jr.txt'.format(jer_tag)))
-            print("File "+'correctionFiles/JER/{0}/{0}_SF_AK8PFPuppi.jersf.txt'.format(jer_tag)+" exists: ", os.path.exists('correctionFiles/JER/{0}/{0}_SF_AK4PFPuppi.jersf.txt'.format(jer_tag)))
+            #print("File "+'correctionFiles/JER/{0}/{0}_PtResolution_AK8PFPuppi.jr.txt'.format(jer_tag)+" exists: ", os.path.exists('correctionFiles/JER/{0}/{0}_PtResolution_AK4PFPuppi.jr.txt'.format(jer_tag)))
+            #print("File "+'correctionFiles/JER/{0}/{0}_SF_AK8PFPuppi.jersf.txt'.format(jer_tag)+" exists: ", os.path.exists('correctionFiles/JER/{0}/{0}_SF_AK4PFPuppi.jersf.txt'.format(jer_tag)))
             ext.add_weight_sets([
             '* * '+'correctionFiles/JER/{0}/{0}_PtResolution_{1}.jr.txt'.format(jer_tag, AK_str),
             '* * '+'correctionFiles/JER/{0}/{0}_SF_{1}.jersf.txt'.format(jer_tag, AK_str)])
             # print("JER SF added")
     else:       
-        #For data, make sure we don't duplicat
+        
+        #For data, make sure we don't duplicate
         tags_done = []
+        print("In the DATA section")
+        print("File "+'correctionFiles/JEC/{0}/{0}_L1FastJet_{1}.jec.txt'.format("Summer19UL17_RunF_V6_DATA", AK_str)+" exists: ", os.path.exists('correctionFiles/JEC/{0}/{0}_L1FastJet_{1}.jec.txt'.format("Summer19UL17_RunF_V6_DATA", AK_str)))
+        # print("File "+'correctionFiles/JEC/{0}/{0}_L2Relative_{1}.jec.txt'.format("Summer19UL17_RunF_V6_DATA", AK_str)+" exists: ", os.path.exists('correctionFiles/JEC/{0}/{0}_L2Relative_{1}.jec.txt'.format("Summer19UL17_RunF_V6_DATA", AK_str)))
+        # print("File "+'correctionFiles/JEC/{0}/{0}_L3Absolute_{1}.jec.txt'.format("Summer19UL17_RunF_V6_DATA", AK_str)+" exists: ", os.path.exists('correctionFiles/JEC/{0}/{0}_L3Absolute_{1}.jec.txt'.format("Summer19UL17_RunF_V6_DATA", AK_str)))
+        # print("File "+'correctionFiles/JEC/{0}/{0}_L2L3Residual_{1}.jec.txt'.format("Summer19UL17_RunF_V6_DATA", AK_str)+" exists: ", os.path.exists('correctionFiles/JEC/{0}/{0}_L2L3Residual_{1}.jec.txt'.format("Summer19UL17_RunF_V6_DATA", AK_str)))
         for run, tag in jec_tag_data.items():
             if not (tag in tags_done):
+
+                #print("Doing", tag, AK_str)
                 ext.add_weight_sets([
                 '* * '+'correctionFiles/JEC/{0}/{0}_L1FastJet_{1}.jec.txt'.format(tag, AK_str),
                 '* * '+'correctionFiles/JEC/{0}/{0}_L2Relative_{1}.jec.txt'.format(tag, AK_str),
@@ -297,6 +375,10 @@ def GetJetCorrections(FatJets, events, era, IOV, isData=False, uncertainties = N
                 '* * '+'correctionFiles/JEC/{0}/{0}_L2L3Residual_{1}.jec.txt'.format(tag, AK_str),
                 ])
                 tags_done += [tag]
+                #print("Done", tag, AK_str)
+        print("Added JEC weight sets")
+
+        
     ext.finalize()
 
     evaluator = ext.make_evaluator()
@@ -335,22 +417,32 @@ def GetJetCorrections(FatJets, events, era, IOV, isData=False, uncertainties = N
 
     # print("jec_input", jec_inputs)
     jec_stack = JECStack(jec_inputs)
-
+    
+    
     if not isData:
-        FatJets['pt_gen'] = ak.values_astype(ak.fill_none(FatJets.matched_gen.pt, 0), np.float32)
+        if mode == 'AK8':
+            FatJets['pt_gen'] = ak.values_astype(ak.fill_none(FatJets.matched_gen.pt, 0), np.float32)
+        if mode == 'AK4':        
+            SubGenJetAK8 = events.SubGenJetAK8
+            SubGenJetAK8['p4'] = ak.with_name(SubGenJetAK8[["pt", "eta", "phi", "mass"]],"PtEtaPhiMLorentzVector")
+            FatJets["p4"] = ak.with_name(FatJets[["pt", "eta", "phi", "mass"]],"PtEtaPhiMLorentzVector")
+            FatJets['pt_gen'] = ak.values_astype(ak.fill_none(FatJets.p4.nearest(SubGenJetAK8.p4, threshold=0.4).pt, 0), np.float32)
+    if mode == 'AK4':          
+        FatJets['area'] = ak.full_like( FatJets.pt, 0.503)
+    
     FatJets['pt_raw'] = (1 - FatJets['rawFactor']) * FatJets['pt']
     FatJets['mass_raw'] = (1 - FatJets['rawFactor']) * FatJets['mass']
     FatJets['rho'] = ak.broadcast_arrays(events.fixedGridRhoFastjetAll, FatJets.pt)[0]
-    print("Rho value for jets ", events.fixedGridRhoFastjetAll)
-    if len(SubJets)>0:
-        SubJets['pt_raw'] = (1 - SubJets['rawFactor']) * SubJets['pt']
-        SubJets['mass_raw'] = (1 - SubJets['rawFactor']) * SubJets['mass']
-        SubJets['rho'] = ak.broadcast_arrays(events.fixedGridRhoFastjetAll, SubJets.pt)[0]
-        SubJets['area'] = ak.broadcast_arrays(0.503, SubJets.pt)[0]
+    #print("Rho value for jets ", events.fixedGridRhoFastjetAll)
+
+    
+
+        
+
         # if not isData:
         #     SubJets['pt_gen'] = ak.values_astype(ak.fill_none(SubJets.matched_gen.pt, 0), np.float32)
     name_map = jec_stack.blank_name_map
-    print("N events missing pt entry ", ak.sum(ak.num(FatJets.pt)<1))
+    #print("N events missing pt entry ", ak.sum(ak.num(FatJets.pt)<1))
     name_map['JetPt'] = 'pt'
     name_map['JetMass'] = 'mass'
     name_map['JetEta'] = 'eta'
@@ -363,13 +455,12 @@ def GetJetCorrections(FatJets, events, era, IOV, isData=False, uncertainties = N
     events_cache = events.caches[0]
 
     jet_factory = CorrectedJetsFactory(name_map, jec_stack)
-    if len(SubJets)>0:
-        corrected_jets = jet_factory.build(SubJets, lazy_cache=events_cache)
-    else:
-        corrected_jets = jet_factory.build(FatJets, lazy_cache=events_cache)
+
+
+    corrected_jets = jet_factory.build(FatJets, lazy_cache=events_cache)
     # print("Available uncertainties: ", jet_factory.uncertainties())
     # print("Corrected jets object: ", corrected_jets.fields)
-    print("pt and mass before correction ", FatJets['pt_raw'], ", ", FatJets['mass_raw'], " and after correction ", corrected_jets["pt"], ", ", corrected_jets["mass"])
+    #print("pt and mass before correction ", FatJets['pt_raw'], ", ", FatJets['mass_raw'], " and after correction ", corrected_jets["pt"], ", ", corrected_jets["mass"])
     return corrected_jets    
 # def GetJetCorrections(FatJets, events, era, IOV, isData=False, uncertainties = None):
 #     if uncertainties != None:
@@ -728,8 +819,9 @@ def GetL1PreFiringWeight(IOV, df, var="Nom"):
     L1PrefiringWeights = ak.ones_like(df.event)
     if ("L1PreFiringWeight" in ak.fields(df)):
         L1PrefiringWeights = df["L1PreFiringWeight"][var]
-    return L1PrefiringWeights
+    return  L1PrefiringWeights
 
+## Veto instead of reducing, 
 def HEMCleaning(IOV, JetCollection):
     ## Reference: https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/2000.html
     isHEM = ak.ones_like(JetCollection.pt)
@@ -745,7 +837,31 @@ def HEMCleaning(IOV, JetCollection):
     JetCollection = ak.with_field(JetCollection, JetCollection.pt*isHEM, "pt" )
     return JetCollection
 
+
+def HEMVeto(FatJets, runs):
+    ## from https://github.com/laurenhay/GluonJetMass/blob/main/python/corrections.py
+    ## Reference: https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/2000.html
+    
+    runid = (runs >= 319077)
+    print(runid)
+    # print("Fat jet phi ", FatJets.phi)
+    # print("Fat jet phi length ", len(FatJets.phi))
+    # print("Fat jet eta ", FatJets.eta)
+    # print("Fat jet eta length ", len(FatJets.eta))
+    detector_region1 = ((FatJets.phi < -0.87) & (FatJets.phi > -1.57) &
+                       (FatJets.eta < -1.3) & (FatJets.eta > -2.5))
+    detector_region2 = ((FatJets.phi < -0.87) & (FatJets.phi > -1.57) &
+                       (FatJets.eta < -2.5) & (FatJets.eta > -3.0))
+    jet_selection    = ((FatJets.jetId > 1) & (FatJets.pt > 15))
+
+    vetoHEMFatJets = ak.any((detector_region1 & jet_selection & runid) ^ (detector_region2 & jet_selection & runid), axis=1)
+    #print("Number of hem vetoed jets: ", ak.sum(vetoHEMFatJets))
+    vetoHEM = ~(vetoHEMFatJets)
+    
+    return vetoHEM
+
 def GetEleSF(IOV, wp, eta, pt, var = ""):
+    ## var = "RecoAbove20"
     ## Reference:
     ##   - https://twiki.cern.ch/twiki/bin/view/CMS/EgammaUL2016To2018
     ##   - https://twiki.cern.ch/twiki/bin/view/CMS/EgammaSFJSON
@@ -776,46 +892,65 @@ def GetMuonSF(IOV, corrset, abseta, pt, var="sf"):
     ##            https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonUL2017
     ##            https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonUL2018
     ## Using the JSONs created by MUO POG
-    ## corrset = "RECO", "HLT", "IDISO"
+    ## corrset = "RECO", "HLT", "ID", "ISO"
     ## var = "sf", "systup", "systdown"
     
     tag = IOV
     if 'APV' in IOV:
         tag = '2016_preVFP'
-    fname = "correctionFiles/muonSF/UL"+IOV+"/ScaleFactors_Muon_highPt_"+corrset+"_"+tag+"_schemaV2.json"
-    
+    fname = "correctionFiles/muonSF/UL"+IOV+"/muon_Z.json.gz"
+    #print(fname)
     num = ak.num(pt)
     evaluator = correctionlib.CorrectionSet.from_file(fname)
     
     ## the correction for TuneP muons are avaiable for p > 50GeV and eta < 2.4,
     ## so for those cases I'm applying SFs form the next closest bin.
-    pt = ak.where(pt > 50, pt, 50.1)
+    #pt = ak.where(pt > 50, pt, 50.1)
     abseta = ak.where(abseta < 2.4, abseta, 2.39)
     
     if corrset == "RECO":
-        hname = "NUM_GlobalMuons_DEN_TrackerMuonProbes" # for RECO (p, eta)
+        hname = "NUM_GlobalMuons_DEN_genTracks" # for RECO (p, eta)
         #we need to modify the pT into |p|
-        pt = np.cosh(abseta)*pt
-        pt = ak.where(pt < 3500, pt, 3499)
+
+        pt = ak.where(pt < 15, 15.1, pt)
         
     if corrset == "HLT":
-        hname = "NUM_HLT_DEN_HighPtTightRelIsoProbes" # for HLT (pt, eta)
-        pt = ak.where(pt < 1000, pt, 999.9)
+        if IOV == '2016':
+            hname = "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight" # for HLT (pt, eta)
+            pt = ak.where(pt < 26, 26.1, pt)
+        if IOV == '2016APV':
+            hname = "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight" # for HLT (pt, eta)
+            pt = ak.where(pt < 26, 26.1, pt)
+        if IOV == '2017':
+            hname = "NUM_IsoMu27_DEN_CutBasedIdTight_and_PFIsoTight" # for HLT (pt, eta)
+            pt = ak.where(pt < 29, 29.1, pt)
+        if IOV == '2018':
+            hname = "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight" # for HLT (pt, eta)
         
-    if corrset == "IDISO":
-        hname = "NUM_HighPtID_DEN_GlobalMuonProbes" # for IDISO (pt, eta)
-        pt = ak.where(pt < 1000, pt, 999.9)
+            pt = ak.where(pt < 26, 26.1, pt)
+        
+    if corrset == "ID":
+        hname = "NUM_MediumID_DEN_TrackerMuons" # for medium ID (pt, eta)
+        pt = ak.where(pt < 15, 15.1, pt)
+
+    if corrset == "ISO":
+        hname = "NUM_TightRelIso_DEN_MediumID" # for tight ISO on Medium ID (pt, eta)
+        pt = ak.where(pt < 15, 15.1, pt)
     
     sf = evaluator[hname].evaluate(np.array(ak.flatten(abseta)),
                                    np.array(ak.flatten(pt)),
                                    'nominal')
-    syst = evaluator[hname].evaluate(np.array(ak.flatten(abseta)),
-                                   np.array(ak.flatten(pt)),
-                                   'syst')
+    # syst = evaluator[hname].evaluate(np.array(ak.flatten(abseta)),
+    #                                np.array(ak.flatten(pt)),
+    #                                'syst')
     if "up" in var:
-        sf = sf + syst
+        sf = evaluator[hname].evaluate(np.array(ak.flatten(abseta)),
+                                   np.array(ak.flatten(pt)),
+                                   'systup')
     elif "down" in var:
-        sf = sf - syst
+        sf = evaluator[hname].evaluate(np.array(ak.flatten(abseta)),
+                                   np.array(ak.flatten(pt)),
+                                   'systdown')
 
     return ak.unflatten(sf, ak.num(pt))
 
@@ -842,6 +977,8 @@ def GetPDFweights(df, var="nominal"):
     pdf = ak.ones_like(df.Pileup.nTrueInt)
     if ("LHEPdfWeight" in ak.fields(df)):
         pdfUnc = ak.std(df.LHEPdfWeight,axis=1)/ak.mean(df.LHEPdfWeight,axis=1)
+    else:
+        pdfUnc = 0
     if var == "up":
         pdf = pdf + pdfUnc
     elif var == "down":
@@ -903,11 +1040,13 @@ def jmrsf(IOV, FatJet, var = ''):
         "2018"   :{"sf": 1.108, "sfup": 1.142, "sfdown": 1.074}}     
     
     jmrvalnom = jmrSF[IOV]["sf"+var]
-    
+    print("How many none in Fatjet.mass before processing inside jmrnom", ak.sum(ak.is_none(ak.firsts(FatJet).mass)))
     recomass = FatJet.mass
     genmass = FatJet.matched_gen.mass
 
+    print("Genmass inside jmrsf", genmass)
 
+    print("How many none in Fatjet.matched_gen inside jmrnom", ak.sum(ak.is_none(FatJet.matched_gen.mass)))
     # counts = ak.num(recomass)
     # recomass = ak.flatten(recomass)
     # genmass = ak.flatten(genmass)
@@ -916,11 +1055,13 @@ def jmrsf(IOV, FatJet, var = ''):
     deltamass = (recomass-genmass)*(jmrvalnom-1.0)
     condition = ((recomass+deltamass)/recomass) > 0
     jmrnom = ak.where( recomass <= 0.0, 0 , ak.where( condition , (recomass+deltamass)/recomass, 0 ))
-
+    print(jmrnom)
+    print("How many none in Fatjet inside jmrnom", ak.sum(ak.is_none(FatJet.mass)))
 
     FatJet = ak.with_field(FatJet, FatJet.mass * jmrnom, 'mass')
     FatJet = ak.with_field(FatJet, FatJet.msoftdrop * jmrnom, 'msoftdrop')
-
+    
+    print("How many none in Fatjet.mass that is being returned inside jmrnom", ak.sum(ak.is_none(ak.firsts(FatJet).mass)))
     return FatJet
 
 

@@ -21,31 +21,30 @@ from python.response_maker_nanov9_lib_v3 import *
 
 
 def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = "root://xcache/",
-                          skimfilename=None, eras_mc = None, do_syst = False , dask = False, do_jk = False,
+                          skimfilename=None, eras_mc = None, eras_data = None, do_syst = False , dask = False, do_jk = False,
                           do_herwig = False, do_background = False, fname_out = None, syst_list = None, jet_syst_list = None ): 
 
 
     if do_jk == True:
         do_syst = False
-        do_gen = True
         do_background = False
     filedir = "samples/"
 
-    eras_data = [
-        'UL16NanoAOD', 
-        'UL16NanoAODAPV', 
-        'UL17NanoAOD', 
-        'UL18NanoAOD'
-           ]
+    # eras_data = [
+    #     'UL16NanoAOD', 
+    #     'UL16NanoAODAPV', 
+    #     'UL17NanoAOD', 
+    #     'UL18NanoAOD'
+    #        ]
     eras_mc = eras_mc
     
     
     if not testing: 
-        nworkers = 4
+        nworkers = 1
         if do_syst or do_jk:
-            chunksize = 400000
+            chunksize = 2000000
         else:
-            chunksize = 400000
+            chunksize = 2000000
         maxchunks = None
     elif dask and (client != None):
         chunksize = 100000
@@ -54,9 +53,9 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
         client = None
         nworkers = 1
         if do_gen: 
-            chunksize = 400000
+            chunksize = 4000
         else:
-            chunksize=400000
+            chunksize=300000
         maxchunks = 1
 
     print("Chunk Size ", chunksize)
@@ -96,15 +95,35 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
         else: 
             print("Running over Data")
 
-            datasets_list = [#['SingleElectron_UL2016','SingleMuon_UL2016'],]
-                             ['SingleElectron_UL2016APV','SingleMuon_UL2016APV'],]
-                             #['SingleElectron_UL2017','SingleMuon_UL2017'],]
-                             #['EGamma_UL2018','SingleMuon_UL2018']]
+            # datasets_list = [['SingleElectron_UL2016','SingleMuon_UL2016'],]
+            #                  #['SingleElectron_UL2016APV','SingleMuon_UL2016APV'],]
+            #                  #['SingleElectron_UL2017','SingleMuon_UL2017'],]
+            #                  #['EGamma_UL2018','SingleMuon_UL2018']]
 
-            fname_out_list = [#'2016',]
-                              '2016APV',]
-                              #'2017',]
-                              #'2018']
+            # fname_out_list = ['2016',]
+            #                   #'2016APV',]
+            #                   #'2017',]
+            #                   #'2018']
+
+            datasets_list = []
+            fname_out_list = []
+
+            
+
+            for era in eras_data:
+                print("Era is ", era)
+                if era == '2016':
+                    datasets_list.append(['SingleElectron_UL2016','SingleMuon_UL2016'])
+                    fname_out_list.append(era)
+                if era == '2016APV':
+                    datasets_list.append(['SingleElectron_UL2016APV','SingleMuon_UL2016APV'])
+                    fname_out_list.append(era)
+                if era == '2017':
+                    datasets_list.append(['SingleElectron_UL2017','SingleMuon_UL2017'])
+                    fname_out_list.append(era)
+                if era == '2018':
+                    datasets_list.append(['EGamma_UL2018','SingleMuon_UL2018'])
+                    fname_out_list.append(era)
             # datasets_data = [
             #     'SingleElectron_UL2016APV',
             #     'SingleElectron_UL2016',
@@ -125,8 +144,9 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
                         data_files = [prependstr + i.rstrip() for i in f.readlines()  if i[0] != "#" ]
                         fileset[dataset] = data_files
                 fileset_data_list.append(fileset)
-    else: 
+    else: ## Testinng
         if do_gen :
+            
             if ( not do_herwig) and (not do_background):
                 filename = filedir+"subset2016mc.txt"
                 #fileset["UL2018"] = [prependstr+'/store/mc/RunIISummer20UL18NanoAODv9/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v2/230000/00EA9563-5449-D24E-9566-98AE8E2A61AE.root']
@@ -134,12 +154,15 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
                     fileset["UL18NanoAODv9"] = [prependstr + i.rstrip() for i in f.readlines() if i[0] != "#" ]
             elif ( not do_herwig) and do_background:
                 print("Doing bg test")
-                fileset["wz_2017"] = [prependstr + "/store/mc/RunIISummer20UL17NanoAODv9/WZ_TuneCP5_13TeV-pythia8/NANOAODSIM/20UL17JMENano_106X_mc2017_realistic_v9-v1/40000/90971D38-C407-F344-BEB8-834DE3231BFB.root"]
+                fileset["wz_2017"] = [prependstr + "/store/data/Run2017H/SingleMuon/NANOAOD/UL2017_MiniAODv2_NanoAODv9_GT36-v1/2530000/99416BAF-C9A9-C24F-98C6-0A22EB8EAFE5.root"]
             else:
                 print("Doing Herwig Test")
-                fileset["UL17NanoAODv9"] = [prependstr + "/store/mc/RunIISummer20UL16NanoAODv9/DYJetsToLL_M-50_TuneCH3_13TeV-madgraphMLM-herwig7/NANOAODSIM/20UL16JMENano_HerwigJetPartonBugFix_106X_mcRun2_asymptotic_v17-v1/40000/6C26A4DE-8CED-894A-87CC-595EDC0D694D.root"]
+                fileset["UL17NanoAODv9"] = [prependstr + "/store/data/Run2017G/SingleMuon/NANOAOD/UL2017_MiniAODv2_NanoAODv9_GT36-v1/70000/216F0004-2555-CA48-A585-78156C4E7BB5.root"]
         else: 
-            fileset["UL2018"] = [prependstr + "/store/data/Run2018A/SingleMuon/NANOAOD/UL2018_MiniAODv2_NanoAODv9_GT36-v1/2820000/FF8A3CD2-3F51-7A43-B56C-7F7B7B3158E3.root"]
+            #fileset["UL2018"] = [prependstr + "/store/data/Run2018A/SingleMuon/NANOAOD/UL2018_MiniAODv2_NanoAODv9_GT36-v1/2820000/AB2DCE09-D88B-124F-BB18-89C6D59D04A8.root"]
+            fileset["UL2017"] = [prependstr +"/store/data/Run2017F/SingleMuon/NANOAOD/UL2017_MiniAODv2_NanoAODv9_GT36-v1/2560000/283063D9-B877-4E40-8562-6F099A031453.root"]
+
+        print(fileset)
 
                 
 
@@ -156,8 +179,8 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
     else: 
         run = processor.Runner(
             executor = processor.DaskExecutor(client=client, 
-                                              retries=10, 
-                                              treereduction=40, 
+                                              retries=3, 
+                                              treereduction=6, 
                                               status=True),
             schema=NanoAODSchema,
             chunksize=chunksize,
@@ -212,6 +235,9 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
         with open(fname_out, "wb") as f:
             pickle.dump( output, f )
         print(fname_out ," was created.")
+    import datetime
+    dt = datetime.datetime.now()
+    dtstr = dt.strftime("%d%m")
     if testing:
         run_over_fileset(fileset)
     elif ((not testing) & (not do_gen)):
@@ -221,8 +247,8 @@ def response_maker_nanov9(testing=False, do_gen=True, client=None, prependstr = 
         for fileset in fileset_data_list:
             if fname_out == None:
                 print(f"Now using files from {fname_out_list[i_name]}")
-                print(f"Output file will be saved at {'outputs/data_'+fname_out_list[i_name] + '.pkl'}")
-                run_over_fileset(fileset, fname_out = 'outputs/data_'+fname_out_list[i_name] + '.pkl')
+                print(f"Output file will be saved at {'outputs/data_'+dtstr+'_'+fname_out_list[i_name] + '.pkl'}")
+                run_over_fileset(fileset, fname_out = 'outputs/data_'+dtstr+'_'+fname_out_list[i_name] + '.pkl')
                 i_name += 1
             else:
                 print(f"Now using files from {fname_out_list[i_name]}")

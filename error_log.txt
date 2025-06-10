@@ -1,0 +1,27 @@
+An error occurred:
+Work item WorkItem(dataset='SingleElectron_UL2017', filename='root://cms-xrd-global.cern.ch//store/data/Run2017B/SingleElectron/NANOAOD/UL2017_MiniAODv2_NanoAODv9-v1/120000/46E53FF3-D096-C647-83A1-8112BC83D056.root', treename='Events', entrystart=878622, entrystop=1757244, fileuuid=b'\x1e}l\xfc\xe3\x1b\x11\xeb\xa91\x02\x00\x13\xac\xbe\xef', usermeta={}) caused a KilledWorker exception (likely a segfault or out-of-memory issue)
+
+Traceback:
+Traceback (most recent call last):
+  File "/opt/conda/lib/python3.10/site-packages/coffea/processor/executor.py", line 974, in __call__
+    else _decompress(work.result())
+  File "/opt/conda/lib/python3.10/site-packages/distributed/client.py", line 287, in result
+    raise exc.with_traceback(tb)
+distributed.scheduler.KilledWorker: Attempted to run task QJetMassProcessor-a5639ba1c63a2c964a5d1106dd9a30a8 on 3 different workers, but all those workers died while running it. The last worker that attempt to run the task was tcp://131.225.204.129:10000. Inspecting worker logs is often a good next step to diagnose what went wrong. For more information see https://distributed.dask.org/en/stable/killed.html.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/ipykernel_70607/2887686695.py", line 22, in <module>
+    response_maker_nanov9(testing =  False,
+  File "/srv/projects/zjet/python/response_maker_nanov9_v4.py", line 256, in response_maker_nanov9
+    run_over_fileset(fileset, fname_out = fname_out)
+  File "/srv/projects/zjet/python/response_maker_nanov9_v4.py", line 211, in run_over_fileset
+    output = run(
+  File "/opt/conda/lib/python3.10/site-packages/coffea/processor/executor.py", line 1700, in __call__
+    wrapped_out = self.run(fileset, processor_instance, treename)
+  File "/opt/conda/lib/python3.10/site-packages/coffea/processor/executor.py", line 1848, in run
+    wrapped_out, e = executor(chunks, closure, None)
+  File "/opt/conda/lib/python3.10/site-packages/coffea/processor/executor.py", line 984, in __call__
+    raise RuntimeError(
+RuntimeError: Work item WorkItem(dataset='SingleElectron_UL2017', filename='root://cms-xrd-global.cern.ch//store/data/Run2017B/SingleElectron/NANOAOD/UL2017_MiniAODv2_NanoAODv9-v1/120000/46E53FF3-D096-C647-83A1-8112BC83D056.root', treename='Events', entrystart=878622, entrystop=1757244, fileuuid=b'\x1e}l\xfc\xe3\x1b\x11\xeb\xa91\x02\x00\x13\xac\xbe\xef', usermeta={}) caused a KilledWorker exception (likely a segfault or out-of-memory issue)
